@@ -1,0 +1,21 @@
+<svg width="560" height="160" viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="CritHit">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#4C1D95"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="160" height="160" rx="36" fill="url(#bg2)"/>
+
+  <g stroke="#FFC857" stroke-width="4" stroke-linecap="round" opacity="0.9">
+    <line x1="120" y1="27" x2="131" y2="16"/>
+    <line x1="128" y1="37" x2="142" y2="34"/>
+    <line x1="117" y1="42" x2="120" y2="56"/>
+  </g>
+
+  <path d="M 80.0,36.8 L 90.82,68.31 L 124.13,68.86 L 97.5,88.89 L 107.27,120.74 L 80.0,101.6 L 52.73,120.74 L 62.5,88.89 L 35.87,68.86 L 69.18,68.31 Z"
+        fill="#FFC857" stroke="#FFFFFF" stroke-width="2.4" stroke-linejoin="round" transform="translate(0,4) scale(0.8) translate(20,20)"/>
+
+  <text x="185" y="102" font-family="Space Grotesk, Poppins, Arial, sans-serif" font-size="64" font-weight="700" fill="#F5F5F7">Crit<tspan fill="#FFC857">Hit</tspan></text>
+</svg>
