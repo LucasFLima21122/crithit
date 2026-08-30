@@ -16,12 +16,12 @@ List<Game> buildMockGames() {
           "Explore um reino subterrâneo em ruínas, enfrente criaturas corrompidas e descubra os segredos de Hallownest neste metroidvania desenhado à mão.",
       reviews: <Review>[
         const Review(
-          author: "duda.games",
+          author: "Lucas",
           rating: 5,
           comment: "Trilha sonora e level design impecáveis. Um dos melhores do gênero.",
         ),
         const Review(
-          author: "rafa_plays",
+          author: "Carlos",
           rating: 4,
           comment: "Difícil, mas justo. Só acho a mapa confuso no começo.",
         ),
@@ -38,7 +38,7 @@ List<Game> buildMockGames() {
           "Herde a fazenda do seu avô e construa uma vida no campo: plante, pesque, construa relações e explore as minas da cidade.",
       reviews: <Review>[
         const Review(
-          author: "gabih",
+          author: "Felipe",
           rating: 5,
           comment: "Vicia igual jogo nenhum. Já são 3 fazendas diferentes.",
         ),
@@ -55,12 +55,12 @@ List<Game> buildMockGames() {
           "Fuja do submundo grego em um roguelike de ação com narrativa que evolui a cada nova tentativa.",
       reviews: <Review>[
         const Review(
-          author: "leo.crit",
+          author: "Leonardo",
           rating: 5,
           comment: "Cada morte conta uma história nova. Combate extremamente satisfatório.",
         ),
         const Review(
-          author: "manu_",
+          author: "Arthur",
           rating: 5,
           comment: "Melhor roguelike que já joguei, sem exagero.",
         ),
@@ -88,7 +88,7 @@ List<Game> buildMockGames() {
           "Ajude Madeline a escalar a Montanha Celeste em um plataforma preciso que fala sobre ansiedade e superação.",
       reviews: <Review>[
         const Review(
-          author: "rafa_plays",
+          author: "Guilherme",
           rating: 4,
           comment: "Controles perfeitos, mas os capítulos finais são punitivos demais pra mim.",
         ),
