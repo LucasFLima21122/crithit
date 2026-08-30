@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 
 import "../models/game.dart";
 import "../theme/app_colors.dart";
+import "game_cover.dart";
 import "star_rating.dart";
 
 /// Card usado na lista da HomeScreen para representar um jogo do catálogo.
@@ -30,15 +31,12 @@ class GameCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 56,
-              height: 56,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: AppColors.primaryDark,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(game.emoji, style: const TextStyle(fontSize: 28)),
+            GameCover(
+              emoji: game.emoji,
+              coverAsset: game.coverAsset,
+              size: 56,
+              borderRadius: 12,
+              emojiSize: 28,
             ),
             const SizedBox(width: 14),
             Expanded(

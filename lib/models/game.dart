@@ -25,6 +25,7 @@ class Game {
     required this.genre,
     required this.emoji,
     required this.synopsis,
+    this.coverAsset,
     List<Review>? reviews,
   }) : reviews = reviews ?? <Review>[];
 
@@ -33,9 +34,13 @@ class Game {
   final String platform;
   final String genre;
 
-  /// Emoji usado como "capa" ilustrativa do jogo (evita depender de imagens
-  /// externas neste estágio inicial do projeto).
+  /// Emoji usado como "capa" ilustrativa do jogo quando ainda não existe uma
+  /// imagem real em [coverAsset] (ou quando ela falha ao carregar).
   final String emoji;
+
+  /// Caminho do asset com a capa real do jogo (ex.: "assets/covers/hades.jpg").
+  /// Quando `null` ou quando o arquivo ainda não existe, a UI cai para o [emoji].
+  final String? coverAsset;
 
   final String synopsis;
 

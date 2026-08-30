@@ -18,7 +18,7 @@ Veja a documentação completa do produto em [`docs/PRODUCT.md`](docs/PRODUCT.md
 
 | Nome | Papel no projeto |
 |---|---|
-| _(nome)_ | Front-end Flutter |
+| _()_ | Front-end Flutter |
 | _(nome)_ | Design / identidade visual |
 | _(nome)_ | Documentação / product owner |
 | _(nome)_ | QA / testes |

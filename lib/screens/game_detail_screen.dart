@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 
 import "../models/game.dart";
 import "../theme/app_colors.dart";
+import "../widgets/game_cover.dart";
 import "../widgets/star_rating.dart";
 
 /// Tela de detalhe de um jogo: sinopse, nota média da comunidade, reviews
@@ -66,15 +67,12 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
           children: [
             Row(
               children: [
-                Container(
-                  width: 72,
-                  height: 72,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryDark,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(game.emoji, style: const TextStyle(fontSize: 36)),
+                GameCover(
+                  emoji: game.emoji,
+                  coverAsset: game.coverAsset,
+                  size: 72,
+                  borderRadius: 16,
+                  emojiSize: 36,
                 ),
                 const SizedBox(width: 16),
                 Expanded(

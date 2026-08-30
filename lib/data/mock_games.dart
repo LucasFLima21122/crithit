@@ -11,6 +11,7 @@ List<Game> buildMockGames() {
       platform: "PC / Switch",
       genre: "Metroidvania",
       emoji: "🐞",
+      coverAsset: "assets/covers/hollow-knight.jpg",
       synopsis:
           "Explore um reino subterrâneo em ruínas, enfrente criaturas corrompidas e descubra os segredos de Hallownest neste metroidvania desenhado à mão.",
       reviews: <Review>[
@@ -32,6 +33,7 @@ List<Game> buildMockGames() {
       platform: "PC / Mobile / Console",
       genre: "Simulação",
       emoji: "🌾",
+      coverAsset: "assets/covers/stardew-valley.jpg",
       synopsis:
           "Herde a fazenda do seu avô e construa uma vida no campo: plante, pesque, construa relações e explore as minas da cidade.",
       reviews: <Review>[
@@ -48,6 +50,7 @@ List<Game> buildMockGames() {
       platform: "PC / Switch / PlayStation",
       genre: "Roguelike",
       emoji: "🔥",
+      coverAsset: "assets/covers/hades.jpg",
       synopsis:
           "Fuja do submundo grego em um roguelike de ação com narrativa que evolui a cada nova tentativa.",
       reviews: <Review>[
@@ -69,6 +72,7 @@ List<Game> buildMockGames() {
       platform: "PC / Mobile / Console",
       genre: "Puzzle / Relax",
       emoji: "📦",
+      coverAsset: "assets/covers/unpacking.jpg",
       synopsis:
           "Desembale caixas de mudança e organize os pertences de uma vida inteira em um puzzle contemplativo e cheio de sentimento.",
       reviews: <Review>[],
@@ -79,6 +83,7 @@ List<Game> buildMockGames() {
       platform: "PC / Switch / Console",
       genre: "Plataforma",
       emoji: "🏔️",
+      coverAsset: "assets/covers/celeste.jpg",
       synopsis:
           "Ajude Madeline a escalar a Montanha Celeste em um plataforma preciso que fala sobre ansiedade e superação.",
       reviews: <Review>[
