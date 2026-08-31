@@ -32,7 +32,7 @@ class GameCover extends StatelessWidget {
         height: size,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: AppColors.primaryDark,
+          color: AppColors.coverBackground,
           borderRadius: radius,
         ),
         child: Text(emoji, style: TextStyle(fontSize: emojiSize)),

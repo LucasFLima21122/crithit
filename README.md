@@ -16,13 +16,13 @@ Veja a documentação completa do produto em [`docs/PRODUCT.md`](docs/PRODUCT.md
 
 | Nome | RM | Papel no projeto |
 |---|---|---|
-| Lucas Ferrari Lima | 563119 | Coordenação geral / Product Owner |
-| Carlos Eduardo Pires Cervelli | 563462 | Front-end Flutter — tela de catálogo (Home) |
-| Felipe Krzyanovski do Santos Menezes | 564878 | Front-end Flutter — tela de detalhe e avaliação por estrelas |
+| Felipe Krzyanovski do Santos Menezes | 564878 | Coordenação geral / Product Owner |
+| Lucas Ferrari Lima | 563119 | Desenvolvimento Geral do App |
+| Carlos Eduardo Pires Cervelli | 563462 | Apoio ao Desenvolvimento e Organizacao do Repositorio |
 | Leonardo Lopes Oliveira | 565437 | Identidade visual — logo, paleta de cores, tipografia, Figma |
 | Arthur de Souza Matos Dias | 566068 | Documentação — problema, público-alvo, MVP (`docs/PRODUCT.md`) |
 | Guilherme Carreri Giampietro | 565676 | Pitch — modelo de negócio e diferencial competitivo (`docs/PITCH.md`) |
-| Mateus Patricio Pereira | 564695 | QA/Testes — validação do build e organização do repositório GitHub |
+| Mateus Patricio Pereira | 564695 | QA/Testes — validação do build |
 
 ## Status por Checkpoint
 

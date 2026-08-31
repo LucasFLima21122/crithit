@@ -38,20 +38,22 @@ Exemplos de microcopy:
 
 ## Paleta de cores
 
-Tema escuro como padrão (referência visual do universo gamer e de apps como Letterboxd/Steam), com um roxo elétrico como cor de marca e dourado para o elemento mais importante do produto: a nota em estrelas.
+Base neutra em tons de cinza/preto (referência visual do universo gamer e de apps como Discord/Steam), com acentos coloridos usados com significado — não é "cor por decoração", cada uma marca um estado diferente da interface.
 
 | Token | Hex | Uso |
 |---|---|---|
-| `background` | `#12121A` | Fundo geral do app |
-| `surface` | `#1E1E2A` | Cards, listas, campos |
-| `surfaceAlt` | `#292938` | Elementos elevados (modais, app bar) |
-| `primary` (Crit Purple) | `#7C3AED` | Cor de marca, botões primários, destaques |
-| `primaryDark` | `#4C1D95` | Gradientes, estados pressionados |
-| `accent` (Loot Gold) | `#FFC857` | Estrelas de avaliação, destaques de conquista |
-| `textPrimary` | `#F5F5F7` | Texto principal sobre fundo escuro |
-| `textSecondary` | `#A0A0B2` | Texto de apoio, metadados |
-| `success` | `#4ADE80` | Estados positivos (ex: "salvo com sucesso") |
-| `danger` | `#F87171` | Erros, ações destrutivas |
+| `background` | `#101012` | Fundo geral do app |
+| `surface` | `#19191D` | Cards, listas, campos |
+| `surfaceAlt` | `#24242A` | Elementos elevados (modais, app bar, inputs) |
+| `coverBackground` | `#22303F` | Fundo da capa de um jogo sem imagem real ainda |
+| `primary` (Mana Blue) | `#3B82F6` | Ação primária — botões, ícones e destaques de navegação |
+| `accentGold` (Loot Gold) | `#FFC857` | Estrelas de avaliação — a cor mais importante do produto |
+| `success` (Combo Green) | `#4ADE80` | Estados positivos (ex: "review salva com sucesso") |
+| `danger` (Boss Red) | `#F87171` | Erros e alertas (ex: "falta escolher uma nota") |
+| `textPrimary` | `#F2F2F5` | Texto principal sobre fundo escuro |
+| `textSecondary` | `#9C9CA6` | Texto de apoio, metadados |
+
+**Regra de uso**: dourado é exclusivo das estrelas de nota (nunca usar em outro lugar, pra manter o significado forte); azul é a cor de ação padrão; verde e vermelho só aparecem em feedbacks de sucesso/erro, nunca como decoração solta.
 
 ## Tipografia
 
@@ -64,4 +66,4 @@ Tema escuro como padrão (referência visual do universo gamer e de apps como Le
 - `docs/brand/logo.svg` — símbolo isolado (ícone de app, favicon, avatar).
 - `docs/brand/logo-wordmark.svg` — logo + nome, para cabeçalhos de documentação, splash screen e materiais de pitch.
 
-O símbolo é uma estrela de avaliação com uma "faísca de crit" saindo da ponta — reforça visualmente a ideia de "acerto crítico" e remete diretamente às estrelas de nota do produto.
+> **Em revisão**: os arquivos acima ainda têm a primeira versão do símbolo (estrela com "faísca de crit", em roxo). O novo conceito aprovado é um monograma "C" grande com um "h" pequeno ao lado esquerdo, nas cores atualizadas desta página. Assim que o novo logo for finalizado, ele substitui esses dois arquivos (mesmo nome, mesmo lugar) e este parágrafo é atualizado.

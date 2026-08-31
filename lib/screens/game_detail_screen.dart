@@ -30,7 +30,10 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   void _submitReview() {
     if (_selectedRating == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Escolha de 1 a 5 estrelas antes de salvar.")),
+        SnackBar(
+          backgroundColor: AppColors.danger,
+          content: const Text("Escolha de 1 a 5 estrelas antes de salvar."),
+        ),
       );
       return;
     }
@@ -50,7 +53,10 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Review salva! Combo de bom gosto ativado.")),
+      SnackBar(
+        backgroundColor: AppColors.success,
+        content: const Text("Review salva! Combo de bom gosto ativado."),
+      ),
     );
   }
 
