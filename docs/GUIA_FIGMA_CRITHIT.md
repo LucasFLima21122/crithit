@@ -56,7 +56,7 @@ Quando o logo estiver pronto:
 
 1. Seleciona o grupo "CritHit Logo".
 2. Menu direito → **Export** (ou painel de export no canto inferior direito) → escolhe formato **SVG** → clica em **Export "CritHit Logo"**.
-3. Manda esse arquivo `.svg` aqui no chat (ou salva na pasta `docs/brand/` do projeto substituindo o `logo.svg` atual) que eu já troco a referência no app e na documentação — a tela inicial vai passar a mostrar o logo de verdade no lugar do emoji 🎮 que está lá hoje.
+3. Manda esse arquivo `.svg` aqui no chat (ou salva na pasta `docs/brand/` do projeto como `logo.svg`, ao lado do `logo.png` atual) que eu já atualizo a referência no app e na documentação pra usar a versão vetorial.
 
 ## 6. Checklist rápido antes de fechar o board
 

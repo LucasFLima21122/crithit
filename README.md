@@ -65,14 +65,19 @@ lib/
     mock_games.dart          # catálogo mockado usado nos Checkpoints 4 e 5
   widgets/
     star_rating.dart         # widget de avaliação por estrelas (leitura/escrita)
+    game_cover.dart          # capa do jogo (imagem real, com fallback pro emoji)
     game_card.dart           # card de jogo usado na lista
   screens/
     home_screen.dart         # catálogo de jogos
     game_detail_screen.dart  # detalhe do jogo + formulário de avaliação
+assets/
+  covers/                    # capas reais dos jogos do catálogo mockado
+  branding/                  # logo oficial usado dentro do app
 docs/
   PRODUCT.md                 # problema, público-alvo, MVP
   BRANDING.md                # nome, tom de voz, paleta, tipografia
   PITCH.md                   # modelo de negócio e diferencial competitivo
+  GUIA_FIGMA_CRITHIT.md      # passo a passo pra montar a identidade no Figma
   brand/                     # logo oficial (PNG)
 ```
 
@@ -81,7 +86,8 @@ docs/
 - **Material 3 + tema escuro**: alinhado à identidade visual do CritHit (ver `docs/BRANDING.md`).
 - **`google_fonts`** para tipografia (Space Grotesk nos títulos, Inter no corpo), evitando bundlar arquivos de fonte manualmente.
 - **Dados 100% mockados em memória** (`lib/data/mock_games.dart`): não há dependência de backend ainda — está alinhado ao escopo do Checkpoint 4/5.
-- **Sem imagens externas**: capas de jogo usam emoji como placeholder visual, evitando problemas de assets/rede neste estágio inicial.
+- **Capas reais com fallback**: as capas dos jogos (`assets/covers/`) são imagens locais de verdade; se algum arquivo faltar, o widget `GameCover` cai automaticamente para um emoji ilustrativo, então o app nunca quebra por causa de uma imagem ausente.
+- **Sem imagens externas**: nenhuma imagem vem da internet (nem covers, nem logo) — tudo é asset local, pra não depender de rede na hora da apresentação.
 - **Sem gerenciador de estado externo**: `StatefulWidget` + `setState` são suficientes para o escopo atual; a introdução de Provider/Riverpod fica para quando houver estado compartilhado mais complexo (Checkpoint 5/6).
 
 ## Licença

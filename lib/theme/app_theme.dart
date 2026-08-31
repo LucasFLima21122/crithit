@@ -4,7 +4,7 @@ import "package:google_fonts/google_fonts.dart";
 import "app_colors.dart";
 
 /// Constrói o [ThemeData] com a identidade visual do CritHit:
-/// tema escuro, roxo elétrico como cor primária, dourado para estrelas,
+/// tema escuro, azul (Mana Blue) como cor primária, dourado para estrelas,
 /// títulos em Space Grotesk e corpo de texto em Inter.
 ThemeData buildCritHitTheme() {
   final ThemeData base = ThemeData.dark(useMaterial3: true);
