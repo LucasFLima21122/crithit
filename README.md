@@ -1,4 +1,4 @@
-<img src="docs/brand/logo-wordmark.svg" alt="CritHit" width="360" />
+<img src="docs/brand/logo.png" alt="Logo do CritHit: monograma Ch com uma estrela dourada" width="120" />
 
 # CritHit
 
@@ -73,7 +73,7 @@ docs/
   PRODUCT.md                 # problema, público-alvo, MVP
   BRANDING.md                # nome, tom de voz, paleta, tipografia
   PITCH.md                   # modelo de negócio e diferencial competitivo
-  brand/                     # logo em SVG
+  brand/                     # logo oficial (PNG)
 ```
 
 ## Decisões técnicas (Checkpoint 4)

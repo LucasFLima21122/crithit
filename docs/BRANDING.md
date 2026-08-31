@@ -1,6 +1,6 @@
 # Marca — CritHit
 
-<img src="brand/logo.svg" alt="Logo do CritHit" width="120" />
+<img src="brand/logo.png" alt="Logo do CritHit: monograma Ch com uma estrela dourada" width="120" />
 
 ## Nome
 
@@ -63,7 +63,7 @@ Base neutra em tons de cinza/preto (referência visual do universo gamer e de ap
 
 ## Aplicações do logo
 
-- `docs/brand/logo.svg` — símbolo isolado (ícone de app, favicon, avatar).
-- `docs/brand/logo-wordmark.svg` — logo + nome, para cabeçalhos de documentação, splash screen e materiais de pitch.
+- `docs/brand/logo.png` — símbolo oficial: monograma "Ch" (branco + Mana Blue) com uma estrela dourada, sobre fundo escuro. Usado no app (tela inicial) e nesta documentação.
+- `assets/branding/logo.png` — a mesma imagem, dentro do projeto Flutter, referenciada em `lib/screens/home_screen.dart`.
 
-> **Em revisão**: os arquivos acima ainda têm a primeira versão do símbolo (estrela com "faísca de crit", em roxo). O novo conceito aprovado é um monograma "C" grande com um "h" pequeno ao lado esquerdo, nas cores atualizadas desta página. Assim que o novo logo for finalizado, ele substitui esses dois arquivos (mesmo nome, mesmo lugar) e este parágrafo é atualizado.
+> **Próximo passo (opcional)**: essa é a v1 do logo, em PNG. Se o grupo quiser refinar (ajustar proporções, testar em tamanho de ícone bem pequeno), o `docs/GUIA_FIGMA_CRITHIT.md` tem o passo a passo pra recriar como vetor no Figma e exportar um `.svg` — que dá mais nitidez em qualquer tamanho e substitui este PNG sem mudar mais nada.
