@@ -89,6 +89,37 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
             ),
+            // Logo em destaque no rodapé da tela — só pra deixar a marca
+            // bem visível na apresentação. No layout final (CP5/CP6) isso
+            // deve dar lugar a mais conteúdo (filtros, destaques, etc.).
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 28),
+              child: Center(
+                child: Column(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.asset(
+                        "assets/branding/logo.png",
+                        width: 112,
+                        height: 112,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Text("🎮", style: TextStyle(fontSize: 64)),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Cada jogo merece uma crítica.",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
