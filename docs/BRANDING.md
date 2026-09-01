@@ -67,3 +67,20 @@ Base neutra em tons de cinza/preto (referência visual do universo gamer e de ap
 - `assets/branding/logo.png` — a mesma imagem, dentro do projeto Flutter, referenciada em `lib/screens/home_screen.dart`.
 
 > **Próximo passo (opcional)**: essa é a v1 do logo, em PNG. Se o grupo quiser refinar (ajustar proporções, testar em tamanho de ícone bem pequeno), o `docs/GUIA_FIGMA_CRITHIT.md` tem o passo a passo pra recriar como vetor no Figma e exportar um `.svg` — que dá mais nitidez em qualquer tamanho e substitui este PNG sem mudar mais nada.
+
+
+## Mini brandbook (HTML)
+
+Além desta documentação em Markdown, montamos um **mini brandbook navegável** reunindo nome, tom de voz, paleta, tipografia e aplicações do logo em uma única página, com a identidade visual já aplicada nela mesma (fundo escuro, tipografia da marca, cores oficiais).
+
+- Arquivo interativo: [`docs/brand/brandbook.html`](brand/brandbook.html) — abre em qualquer navegador, sem precisar de internet nem de instalar nada.
+- Prints da página, caso queiram anexar como imagem na entrega:
+
+<p>
+  <img src="brand/brandbook/hero.png" alt="Brandbook CritHit — abertura com nome e logo" width="420" />
+  <img src="brand/brandbook/cores.png" alt="Brandbook CritHit — paleta de cores" width="420" />
+</p>
+<p>
+  <img src="brand/brandbook/tipografia.png" alt="Brandbook CritHit — tipografia" width="420" />
+  <img src="brand/brandbook/aplicado.png" alt="Brandbook CritHit — logo aplicado" width="420" />
+</p>

@@ -78,7 +78,7 @@ docs/
   BRANDING.md                # nome, tom de voz, paleta, tipografia
   PITCH.md                   # modelo de negócio e diferencial competitivo
   GUIA_FIGMA_CRITHIT.md      # passo a passo pra montar a identidade no Figma
-  brand/                     # logo oficial (PNG)
+  brand/                     # logo oficial (PNG) + mini brandbook (HTML e prints)
 ```
 
 ## Decisões técnicas (Checkpoint 4)
