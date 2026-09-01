@@ -16,7 +16,7 @@ A ideia definida: um **"C" grande** com um **"h" pequeno** encostado nele, do la
 2. Cria outra camada de texto só com "h", mesma fonte, mas bem menor (uns 35–40% do tamanho do "C").
 3. **Posiciona o "h"**: encosta ele na parte de cima-esquerda do "C", meio "grudado" na curva da letra — pensa em como um "™" ou "©" fica colado do lado de um logotipo, só que aqui o "h" é parte do símbolo, não um selo.
 4. **Transforma texto em contorno**: com as duas camadas de texto selecionadas, clica com o botão direito → **Outline Stroke** (ou `Shift+Ctrl+O` / `Shift+Cmd+O` no Mac). Isso converte o texto em formas vetoriais puras — importante porque assim o logo não depende de ninguém ter a fonte Space Grotesk instalada pra abrir o arquivo depois.
-5. Se quiser um efeito mais "logo único" (as duas letras se tocando/fundindo em vez de só sobrepostas), seleciona as duas formas e usa **Union Selection** (ícone de booleanos, ou no menu Boolean Groups) — isso funde as duas em um único caminho vetorial.
+5. Se quiser um efeito mais "logo único" (as duas letras se tocando/fundindo em vez de só sobrepostas), seleciona as duas formas e usa **Union Selection** (ícone de booleanos, ou no menu Boolean Groups), isso funde as duas em um único caminho vetorial.
 6. Aplica a cor: seleciona a forma final e troca o fill pra uma das cores da paleta abaixo — o **azul** (`#3B82F6`, Mana Blue) é a escolha mais alinhada, já que é a cor de ação/identidade principal agora que o roxo saiu.
 7. Agrupa tudo (`Ctrl+G` / `Cmd+G`) e nomeia o grupo como "CritHit Logo".
 
@@ -39,14 +39,14 @@ Cria retângulos pequenos (`R`) lado a lado, um pra cada cor, com o hex escrito 
 | Texto principal | `#F2F2F5` | Texto sobre fundo escuro |
 | Texto secundário | `#9C9CA6` | Textos de apoio, metadados |
 
-Regra pra manter consistência (bom repetir isso no board do Figma como nota): dourado é exclusivo das estrelas, verde/vermelho só aparecem em feedback de sucesso/erro — nunca como decoração solta.
+Regra pra manter consistência (bom repetir isso no board do Figma como nota): dourado é exclusivo das estrelas, verde/vermelho só aparecem em feedback de sucesso/erro, nunca como decoração solta.
 
 ## 4. Tipografia
 
 Cria dois textos de exemplo pra mostrar a hierarquia:
 
 - **Títulos**: fonte **Space Grotesk**, peso Bold/ExtraBold — usa pra mostrar um título de tela, tipo "Catálogo" ou o nome de um jogo.
-- **Corpo de texto**: fonte **Inter**, peso Regular — usa pra um parágrafo de exemplo, tipo uma sinopse ou review.
+- **Corpo de texto**: fonte **Inter**, peso Regular, usa pra um parágrafo de exemplo, tipo uma sinopse ou review.
 
 As duas fontes já vêm disponíveis na busca de fontes do Figma (são Google Fonts), sem precisar instalar nada — só digitar o nome no seletor.
 

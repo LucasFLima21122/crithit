@@ -2,7 +2,7 @@
 
 # CritHit
 
-**"Letterboxd para jogos"** — registre os jogos que você jogou, dê uma nota de 1 a 5 estrelas e escreva sua crítica, exatamente como você faria numa plataforma de avaliação de filmes.
+**"Letterboxd para jogos"**, registre os jogos que você jogou, dê uma nota de 1 a 5 estrelas e escreva sua crítica, exatamente como você faria numa plataforma de avaliação de filmes.
 
 Projeto integrado da disciplina **Cross-Platform Application Development** (Ciência da Computação — 2º Ano), desenvolvido em **Flutter/Dart** ao longo dos Checkpoints 4, 5 e 6.
 
@@ -85,11 +85,8 @@ docs/
 
 - **Material 3 + tema escuro**: alinhado à identidade visual do CritHit (ver `docs/BRANDING.md`).
 - **`google_fonts`** para tipografia (Space Grotesk nos títulos, Inter no corpo), evitando bundlar arquivos de fonte manualmente.
-- **Dados 100% mockados em memória** (`lib/data/mock_games.dart`): não há dependência de backend ainda — está alinhado ao escopo do Checkpoint 4/5.
+- **Dados 100% mockados em memória** (`lib/data/mock_games.dart`): não há dependência de backend ainda, está alinhado ao escopo do Checkpoint 4/5.
 - **Capas reais com fallback**: as capas dos jogos (`assets/covers/`) são imagens locais de verdade; se algum arquivo faltar, o widget `GameCover` cai automaticamente para um emoji ilustrativo, então o app nunca quebra por causa de uma imagem ausente.
-- **Sem imagens externas**: nenhuma imagem vem da internet (nem covers, nem logo) — tudo é asset local, pra não depender de rede na hora da apresentação.
+- **Sem imagens externas**: nenhuma imagem vem da internet (nem covers, nem logo), tudo é asset local, pra não depender de rede na hora da apresentação.
 - **Sem gerenciador de estado externo**: `StatefulWidget` + `setState` são suficientes para o escopo atual; a introdução de Provider/Riverpod fica para quando houver estado compartilhado mais complexo (Checkpoint 5/6).
 
-## Licença
-
-Projeto acadêmico, sem licença de distribuição definida.
