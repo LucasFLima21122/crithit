@@ -6,6 +6,8 @@
 
 Projeto integrado da disciplina **Cross-Platform Application Development** (Ciência da Computação — 2º Ano), desenvolvido em **Flutter/Dart** ao longo dos Checkpoints 4, 5 e 6.
 
+<img src="docs/demo.gif" alt="Demonstração do CritHit: navegação pelo catálogo, tela de detalhe e avaliação por estrelas" width="360" />
+
 ## Proposta de valor
 
 Hoje, avaliar jogos é uma experiência fragmentada: nota de crítica especializada num site, review de compra na loja digital, opinião pessoal perdida em um grupo do WhatsApp. O **CritHit** junta tudo isso em um único lugar, focado exclusivamente na experiência pessoal de quem joga: um catálogo de jogos onde qualquer pessoa pode dar sua nota (1 a 5 estrelas) e escrever uma crítica, além de ver o que a comunidade achou de cada jogo.
