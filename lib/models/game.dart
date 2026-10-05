@@ -1,58 +1,64 @@
-/// Representa uma crítica (review) feita por um usuário sobre um jogo.
-class Review {
-  const Review({
-    required this.author,
-    required this.rating,
-    required this.comment,
-  });
-
-  /// Nome de quem escreveu a review.
-  final String author;
-
-  /// Nota de 1 a 5 estrelas.
-  final int rating;
-
-  /// Texto livre da crítica.
-  final String comment;
-}
-
-/// Representa um jogo dentro do catálogo do CritHit.
+/// Representa um jogo dentro do CritHit — tanto os do catálogo curado
+/// (`lib/data/mock_catalog.dart`) quanto os importados da biblioteca Steam.
 class Game {
-  Game({
+  const Game({
     required this.id,
     required this.title,
     required this.platform,
     required this.genre,
     required this.emoji,
     required this.synopsis,
+    this.developer,
+    this.releaseYear,
     this.coverAsset,
-    List<Review>? reviews,
-  }) : reviews = reviews ?? <Review>[];
+    this.steamAppId,
+  });
+
+  /// Cria um jogo a partir de um item da biblioteca Steam que não existe no
+  /// catálogo curado. O id `steam-<appid>` é o mesmo usado nas reviews.
+  factory Game.fromSteam({required int appId, required String name}) {
+    return Game(
+      id: steamGameId(appId),
+      title: name,
+      platform: "PC (Steam)",
+      genre: "Importado da Steam",
+      emoji: "🎮",
+      synopsis:
+          "Jogo importado da sua biblioteca Steam. Ainda não faz parte do catálogo curado do CritHit, mas você já pode dar sua nota e escrever sua crítica.",
+      steamAppId: appId,
+    );
+  }
+
+  static String steamGameId(int appId) => "steam-$appId";
 
   final String id;
   final String title;
   final String platform;
   final String genre;
+  final String? developer;
+  final int? releaseYear;
 
-  /// Emoji usado como "capa" ilustrativa do jogo quando ainda não existe uma
-  /// imagem real em [coverAsset] (ou quando ela falha ao carregar).
+  /// Emoji usado como "capa" quando não há imagem (ou ela falha ao carregar).
   final String emoji;
 
-  /// Caminho do asset com a capa real do jogo (ex.: "assets/covers/hades.jpg").
-  /// Quando `null` ou quando o arquivo ainda não existe, a UI cai para o [emoji].
+  /// Capa local (ex.: `assets/covers/hades.jpg`) — funciona sem internet.
   final String? coverAsset;
+
+  /// Id do jogo na Steam, quando ele existe lá. Liga o catálogo curado à
+  /// biblioteca importada e permite buscar a capa no CDN da Steam.
+  final int? steamAppId;
 
   final String synopsis;
 
-  /// Reviews da comunidade para este jogo. Mutável de propósito: no CP4 o
-  /// dado é mockado em memória, sem persistência real.
-  final List<Review> reviews;
+  bool get isSteamOnly => id.startsWith("steam-");
 
-  /// Nota média da comunidade, calculada a partir das reviews existentes.
-  /// Quando não há nenhuma review ainda, retorna 0.
-  double get averageRating {
-    if (reviews.isEmpty) return 0;
-    final int total = reviews.fold(0, (sum, review) => sum + review.rating);
-    return total / reviews.length;
-  }
+  /// Capa em pé (2:3) no CDN da Steam, que libera CORS — funciona na web.
+  String? get steamCoverUrl => steamAppId == null
+      ? null
+      : "https://cdn.cloudflare.steamstatic.com/steam/apps/$steamAppId/library_600x900.jpg";
+
+  /// Banner horizontal, que todo jogo da Steam tem (nem todo tem a capa 2:3).
+  String? get steamHeaderUrl => steamAppId == null
+      ? null
+      : "https://cdn.cloudflare.steamstatic.com/steam/apps/$steamAppId/header.jpg";
 }
