@@ -39,14 +39,10 @@ class StarRating extends StatelessWidget {
         final IconData icon = rating >= starValue
             ? Icons.star_rounded
             : (rating > index && rating < starValue)
-                ? Icons.star_half_rounded
-                : Icons.star_border_rounded;
+            ? Icons.star_half_rounded
+            : Icons.star_border_rounded;
 
-        final Widget star = Icon(
-          icon,
-          size: size,
-          color: AppColors.accentGold,
-        );
+        final Widget star = Icon(icon, size: size, color: AppColors.accentGold);
 
         if (!_interactive) {
           return Padding(

@@ -1,56 +1,74 @@
 import "package:flutter/material.dart";
 
+import "../models/game.dart";
 import "../theme/app_colors.dart";
 
-/// Mostra a capa de um jogo: usa a imagem real em [coverAsset] quando ela
-/// existe no projeto, e cai automaticamente para o [emoji] ilustrativo caso
-/// o arquivo ainda não tenha sido adicionado — assim o app nunca quebra por
-/// causa de uma imagem que falta.
+/// Capa de um jogo, com fallbacks em cascata para nunca quebrar a tela:
+/// capa local (asset) → capa 2:3 da Steam → banner da Steam → emoji.
 class GameCover extends StatelessWidget {
   const GameCover({
     super.key,
-    required this.emoji,
-    this.coverAsset,
-    this.size = 56,
+    required this.game,
+    this.width = 56,
+    this.height,
     this.borderRadius = 12,
     this.emojiSize = 28,
   });
 
-  final String? coverAsset;
-  final String emoji;
-  final double size;
+  final Game game;
+  final double width;
+
+  /// Padrão: proporção 2:3 (pôster), igual às capas da Steam.
+  final double? height;
   final double borderRadius;
   final double emojiSize;
 
   @override
   Widget build(BuildContext context) {
+    final double h = height ?? width * 1.5;
     final BorderRadius radius = BorderRadius.circular(borderRadius);
 
-    Widget fallback() {
+    Widget emoji() {
       return Container(
-        width: size,
-        height: size,
+        width: width,
+        height: h,
         alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: AppColors.coverBackground,
-          borderRadius: radius,
-        ),
-        child: Text(emoji, style: TextStyle(fontSize: emojiSize)),
+        color: AppColors.coverBackground,
+        child: Text(game.emoji, style: TextStyle(fontSize: emojiSize)),
       );
     }
 
-    final String? asset = coverAsset;
-    if (asset == null) return fallback();
+    Widget network(String? url, Widget Function() fallback) {
+      if (url == null) return fallback();
+      return Image.network(
+        url,
+        width: width,
+        height: h,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => fallback(),
+        loadingBuilder: (context, child, progress) => progress == null
+            ? child
+            : Container(width: width, height: h, color: AppColors.surfaceAlt),
+      );
+    }
+
+    Widget steamImages() =>
+        network(game.steamCoverUrl, () => network(game.steamHeaderUrl, emoji));
+
+    final String? asset = game.coverAsset;
+    final Widget image = asset == null
+        ? steamImages()
+        : Image.asset(
+            asset,
+            width: width,
+            height: h,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => steamImages(),
+          );
 
     return ClipRRect(
       borderRadius: radius,
-      child: Image.asset(
-        asset,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => fallback(),
-      ),
+      child: SizedBox(width: width, height: h, child: image),
     );
   }
 }
