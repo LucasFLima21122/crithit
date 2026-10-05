@@ -1,16 +1,22 @@
 name: crithit
 description: "CritHit — avalie e comente os jogos que você jogou, com notas de 1 a 5 estrelas."
 publish_to: "none"
-version: 0.1.0
+version: 0.2.0
 
 environment:
-  sdk: ">=3.3.0 <4.0.0"
+  sdk: ">=3.9.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
   google_fonts: ^6.2.1
+  # Estado compartilhado entre telas (sessão, reviews, biblioteca Steam).
+  provider: ^6.1.5
+  # Banco de dados (Postgres), autenticação e Edge Functions.
+  supabase_flutter: ^2.18.0
+  # Chamadas HTTP à Steam Web API (modo direto, sem proxy).
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:

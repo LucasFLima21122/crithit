@@ -40,3 +40,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# CritHit — configuração local com as chaves do Supabase (ver README)
+/config/env.json
+.env
+supabase/.temp/
+supabase/.branches/
