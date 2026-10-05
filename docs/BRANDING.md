@@ -53,7 +53,7 @@ Base neutra em tons de cinza/preto, com acentos coloridos usados com significado
 | `textPrimary` | `#F2F2F5` | Texto principal sobre fundo escuro |
 | `textSecondary` | `#9C9CA6` | Texto de apoio, metadados |
 
-**Regra de uso**: dourado é exclusivo das estrelas de nota (nunca usar em outro lugar, pra manter o significado forte); azul é a cor de ação padrão; verde e vermelho só aparecem em feedbacks de sucesso/erro, nunca como decoração solta.
+**Regra de uso**: dourado é exclusivo das estrelas de nota (nunca usar em outro lugar, pra manter o significado forte); azul é a cor de ação padrão; verde e vermelho só aparecem em feedbacks de sucesso/erro, nunca como decoração solta. A partir do CP5, o selo de **Platinado** (100% das conquistas de um jogo na Steam) também usa o Combo Green, por ser uma conquista (estado positivo), e não o dourado, que segue exclusivo das estrelas.
 
 ## Tipografia
 
@@ -64,7 +64,7 @@ Base neutra em tons de cinza/preto, com acentos coloridos usados com significado
 ## Aplicações do logo
 
 - `docs/brand/logo.png` — símbolo oficial: monograma "Ch" (branco + Mana Blue) com uma estrela dourada, sobre fundo escuro. Usado no app (tela inicial) e nesta documentação.
-- `assets/branding/logo.png` — a mesma imagem, dentro do projeto Flutter, referenciada em `lib/screens/home_screen.dart`.
+- `assets/branding/logo.png` — a mesma imagem, dentro do projeto Flutter, referenciada na tela de boas-vindas (`lib/screens/welcome_screen.dart`) e na tela inicial (`lib/screens/home_screen.dart`). Os ícones da versão web (`web/icons/`, `web/favicon.png`) foram gerados a partir dela.
 
 > **Próximo passo (opcional)**: essa é a v1 do logo, em PNG. Se o grupo quiser refinar (ajustar proporções, testar em tamanho de ícone bem pequeno), o `docs/GUIA_FIGMA_CRITHIT.md` tem o passo a passo pra recriar como vetor no Figma e exportar um `.svg` — que dá mais nitidez em qualquer tamanho e substitui este PNG sem mudar mais nada.
 

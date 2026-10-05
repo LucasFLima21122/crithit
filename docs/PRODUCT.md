@@ -23,11 +23,12 @@ O MVP do CritHit responde a uma pergunta só: *"o que eu joguei, o que eu achei,
 3. **Review em texto**: campo livre para escrever uma crítica pessoal sobre o jogo, associada à nota dada.
 4. **Perfil / histórico do usuário**: lista dos jogos avaliados por aquela pessoa, com nota e data.
 5. **Busca e detalhes do jogo**: tela de detalhe do jogo com sinopse, nota média da comunidade e lista de reviews de outros usuários.
+6. **Importação da biblioteca Steam** (adicionada no Checkpoint 5): o usuário conecta o perfil da Steam e todos os jogos dele entram no CritHit, com horas jogadas, conquistas e o selo de "Platinado" (100% das conquistas), sem precisar cadastrar jogo por jogo. Ataca direto a dor de "o histórico de jogos fica preso dentro de cada plataforma".
 
-Funcionalidades fora do MVP (roadmap futuro, não fazem parte dos Checkpoints 4–6): sistema de amigos/seguir usuários, listas personalizadas (tipo "quero jogar"), integração com APIs de lojas (Steam/PSN) para importar biblioteca automaticamente, recomendações por algoritmo.
+Funcionalidades fora do MVP (roadmap futuro): sistema de amigos/seguir usuários, listas personalizadas (tipo "quero jogar"), importação de PlayStation e Xbox (as APIs são fechadas ou não oficiais, por isso a Steam veio primeiro), recomendações por algoritmo.
 
 ## Escopo por Checkpoint
 
-- **Checkpoint 4 (este)**: conceito, marca, identidade visual e projeto Flutter inicial rodando (tela inicial com catálogo mockado e acesso à avaliação).
-- **Checkpoint 5**: navegação completa entre todas as telas do MVP com dados mockados, sem backend real.
+- **Checkpoint 4**: conceito, marca, identidade visual e projeto Flutter inicial rodando (tela inicial com catálogo mockado e acesso à avaliação).
+- **Checkpoint 5 (este)**: navegação completa entre todas as telas do MVP (boas-vindas, login/cadastro, início, busca com filtros, biblioteca Steam, detalhe do jogo, avaliação, perfil), dados mockados realistas, banco de dados no Supabase (login, perfis e reviews) e importação da biblioteca Steam.
 - **Checkpoint 6**: MVP funcional completo, documentado e empacotado em um APK instalável.
