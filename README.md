@@ -6,6 +6,8 @@
 
 Projeto integrado da disciplina **Cross-Platform Application Development** (Ciência da Computação, 2º ano), desenvolvido em **Flutter/Dart** ao longo dos Checkpoints 4, 5 e 6.
 
+**▶ Teste agora, sem instalar nada: [lucasflima21122.github.io/crithit](https://lucasflima21122.github.io/crithit/)** (versão web no modo online, com banco Supabase e Steam reais; funciona no navegador do computador e do celular)
+
 <p>
   <img src="docs/screenshots/cp5/02-inicio.jpg" alt="Tela inicial do CritHit" width="200" />
   <img src="docs/screenshots/cp5/06-biblioteca-steam.jpg" alt="Biblioteca Steam importada" width="200" />
@@ -46,7 +48,7 @@ Veja a documentação completa do produto em [`docs/PRODUCT.md`](docs/PRODUCT.md
 | Integração de banco de dados (Supabase ou Firebase) | **Supabase**: login, perfis e reviews no Postgres com RLS (`supabase/migrations/`) |
 | Ambiente de teste configurado | Flutter Web (Chrome) e Windows desktop; pastas `web/`, `windows/` e `android/` geradas |
 | Documentação atualizada | Este README + [`docs/SUPABASE_E_STEAM.md`](docs/SUPABASE_E_STEAM.md) |
-| Simulação demonstrável em aula | `flutter run -d chrome` (funciona até sem internet, no modo offline) |
+| Simulação demonstrável em aula | Site publicado em [lucasflima21122.github.io/crithit](https://lucasflima21122.github.io/crithit/) (modo online) ou `flutter run -d chrome` (funciona até sem internet, no modo offline) |
 
 ## Fluxo de telas
 
@@ -180,6 +182,7 @@ As telas dependem só das **interfaces**; `AppServices` escolhe a implementaçã
 - **Capas em cascata**: capa local (asset) → capa da Steam (CDN, que libera CORS) → banner da Steam → emoji. Todas as capas do catálogo agora são locais e em pé (2:3), padronizadas para o novo layout em pôster.
 - **"Platinado" = 100% das conquistas**: na Steam não existe troféu de platina; usamos o equivalente. O selo usa o Combo Green (estado positivo), porque o dourado continua exclusivo das estrelas, como define a marca.
 - **Layout responsivo**: o conteúdo tem largura máxima de 760 px, então no Chrome em tela cheia o app não "estica", e a grade da biblioteca ajusta o número de colunas.
+- **Deploy automático no GitHub Pages**: a cada push no `master`, o workflow `.github/workflows/deploy-web.yml` gera a versão web já apontando para o Supabase (URL e chave pública ficam nas *variables* do repositório) e publica o site. Assim o app roda em qualquer computador sem precisar do `config/env.json` local.
 - **Pastas de plataforma**: `web/` (título, cores e ícones com o logo), `windows/` (janela em formato de celular, 440×900) e `android/` (já preparada para o APK do CP6).
 
 ## Testes
