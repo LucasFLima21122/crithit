@@ -8,6 +8,12 @@ Projeto integrado da disciplina **Cross-Platform Application Development** (Ciê
 
 **▶ Teste agora, sem instalar nada: [lucasflima21122.github.io/crithit](https://lucasflima21122.github.io/crithit/)** (versão web no modo online, com banco Supabase e Steam reais; funciona no navegador do computador e do celular)
 
+<p align="center">
+  <img src="docs/demo-cp5.gif" alt="Demonstração do CritHit: tela inicial com jogos em alta, biblioteca Steam e últimas críticas" width="340" />
+  <br />
+  <sub><b>Demonstração</b>: o app rodando no modo online, com biblioteca Steam importada e reviews do banco</sub>
+</p>
+
 <p>
   <img src="docs/screenshots/cp5/02-inicio.jpg" alt="Tela inicial do CritHit" width="200" />
   <img src="docs/screenshots/cp5/06-biblioteca-steam.jpg" alt="Biblioteca Steam importada" width="200" />
