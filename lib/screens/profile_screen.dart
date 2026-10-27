@@ -3,20 +3,24 @@ import "package:provider/provider.dart";
 
 import "../models/app_user.dart";
 import "../models/game.dart";
+import "../models/library.dart";
 import "../models/review.dart";
-import "../models/steam.dart";
 import "../services/app_services.dart";
 import "../state/app_state.dart";
 import "../theme/app_colors.dart";
+import "../theme/app_theme.dart";
+import "../theme/hud_shapes.dart";
 import "../utils/formatters.dart";
+import "../utils/player_level.dart";
 import "../widgets/common.dart";
+import "../widgets/platform_style.dart";
 import "../widgets/review_tile.dart";
 import "game_detail_screen.dart";
 import "library_screen.dart";
 import "main_shell.dart";
 
-/// Aba "Perfil": quem é o usuário, estatísticas, conta Steam e o histórico
-/// de todas as críticas que ele escreveu.
+/// Aba "Perfil": a ficha do jogador (nível de crítico e XP), estatísticas,
+/// contas conectadas e o histórico de todas as críticas que ele escreveu.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -54,10 +58,11 @@ class ProfileScreen extends StatelessWidget {
 
     final TextTheme textTheme = Theme.of(context).textTheme;
     final List<Review> mine = state.myReviews;
-    final SteamLibrary? library = state.library;
     final double myAverage = mine.isEmpty
         ? 0
         : mine.fold<int>(0, (sum, r) => sum + r.rating) / mine.length;
+    final List<OwnedGame> owned = state.ownedGames;
+    final int platinums = owned.where((g) => g.isPlatinum).length;
 
     return Scaffold(
       appBar: AppBar(
@@ -79,57 +84,9 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      UserAvatar(
-                        initials: user.initials,
-                        imageUrl: library?.profile.avatarUrl,
-                        size: 68,
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              user.displayName,
-                              style: textTheme.headlineSmall,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              user.isGuest
-                                  ? "Conta de convidado"
-                                  : (user.email ?? ""),
-                              style: textTheme.bodySmall,
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              children: [
-                                Icon(
-                                  state.mode == BackendMode.online
-                                      ? Icons.cloud_done_rounded
-                                      : Icons.cloud_off_rounded,
-                                  size: 14,
-                                  color: AppColors.textSecondary,
-                                ),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: Text(
-                                    state.mode == BackendMode.online
-                                        ? "Sincronizado com o Supabase"
-                                        : "Modo offline (dados de exemplo)",
-                                    style: textTheme.bodySmall,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 4),
+                  _PlayerCard(user: user, level: state.playerLevel),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
                       Expanded(
@@ -150,38 +107,36 @@ class ProfileScreen extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: StatTile(
-                          value: library == null
-                              ? "—"
-                              : "${library.games.length}",
-                          label: "Na Steam",
+                          value: state.hasAnyLibrary ? "${owned.length}" : "—",
+                          label: "Jogos",
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: StatTile(
-                          value: library == null
-                              ? "—"
-                              : "${library.platinumCount}",
+                          value: state.hasAnyLibrary ? "$platinums" : "—",
                           label: "Platinados",
                           icon: Icons.emoji_events_rounded,
-                          iconColor: AppColors.success,
+                          iconColor: AppColors.platinum,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  _SteamAccountCard(state: state),
+                  const SectionHeader(
+                    title: "Contas conectadas",
+                    padding: EdgeInsets.fromLTRB(0, 28, 0, 12),
+                  ),
+                  for (final GamePlatform platform in GamePlatform.values)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: _AccountRow(state: state, platform: platform),
+                    ),
                   if (mine.isNotEmpty) ...[
                     const SectionHeader(
                       title: "Suas notas",
-                      padding: EdgeInsets.fromLTRB(0, 24, 0, 10),
+                      padding: EdgeInsets.fromLTRB(0, 20, 0, 12),
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
+                    HudPanel(
                       child: RatingDistribution(
                         ratings: mine.map((r) => r.rating).toList(),
                       ),
@@ -189,14 +144,14 @@ class ProfileScreen extends StatelessWidget {
                   ],
                   const SectionHeader(
                     title: "Suas críticas",
-                    padding: EdgeInsets.fromLTRB(0, 24, 0, 10),
+                    padding: EdgeInsets.fromLTRB(0, 28, 0, 12),
                   ),
                   if (mine.isEmpty)
                     EmptyState(
                       emoji: "✍️",
                       title: "Nenhuma crítica ainda",
                       message:
-                          "Escolhe um jogo que você zerou (ou largou) e conta o que achou.",
+                          "Escolhe um jogo que você zerou (ou largou) e conta o que achou. Cada crítica vale XP.",
                       actionLabel: "Buscar um jogo",
                       onAction: () =>
                           MainShell.goToTab(context, MainShell.searchTab),
@@ -225,7 +180,9 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Center(
                     child: Text(
-                      "CritHit · Cada jogo merece uma crítica.",
+                      state.mode == BackendMode.online
+                          ? "Sincronizado com o Supabase"
+                          : "Modo offline (dados de exemplo)",
                       style: textTheme.bodySmall,
                     ),
                   ),
@@ -239,53 +196,181 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-class _SteamAccountCard extends StatelessWidget {
-  const _SteamAccountCard({required this.state});
+/// A ficha do jogador: avatar, nome, nível, título e a barra de XP.
+class _PlayerCard extends StatelessWidget {
+  const _PlayerCard({required this.user, required this.level});
 
-  final AppState state;
+  final AppUser user;
+  final PlayerLevel level;
 
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
-    final SteamLibrary? library = state.library;
+    final AppState state = context.watch<AppState>();
+    final String? avatar =
+        state.library?.avatarUrl ?? state.psnLibrary?.avatarUrl;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
+    return Material(
+      color: AppColors.surface,
+      shape: HudShapes.outlined(
+        cut: 22,
+        color: AppColors.primary.withValues(alpha: 0.5),
       ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          const Positioned.fill(child: HudStripes()),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    UserAvatar(
+                      initials: user.initials,
+                      imageUrl: avatar,
+                      size: 72,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.displayName,
+                            style: textTheme.headlineSmall,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            user.isGuest
+                                ? "Conta de convidado"
+                                : (user.email ?? ""),
+                            style: textTheme.bodySmall,
+                          ),
+                          const SizedBox(height: 10),
+                          HudTag(
+                            label: level.rank,
+                            color: Colors.white,
+                            background: AppColors.primary,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          "LV",
+                          style: hudLabelStyle(
+                            fontSize: 12,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        Text(
+                          "${level.level}",
+                          style: hudNumberStyle(fontSize: 44),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Text(
+                      "XP",
+                      style: hudLabelStyle(
+                        fontSize: 11,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      "${formatThousands(level.xp)} / ${formatThousands(level.nextLevelXp)}",
+                      style: hudNumberStyle(fontSize: 13),
+                    ),
+                    const Spacer(),
+                    Tooltip(
+                      message:
+                          "Crítica com texto: ${PlayerLevel.xpPerReview} XP · só a nota: ${PlayerLevel.xpPerRating} XP · platina: ${PlayerLevel.xpPerPlatinum} XP · cada hora jogada: 1 XP",
+                      triggerMode: TooltipTriggerMode.tap,
+                      child: Row(
+                        children: [
+                          Text(
+                            "faltam ${formatThousands(level.xpToNext)} XP",
+                            style: textTheme.bodySmall,
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.info_outline_rounded,
+                            size: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                SegmentedBar(value: level.progress, segments: 20, height: 10),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Uma conta de plataforma: conectada (com resumo) ou o convite a conectar.
+class _AccountRow extends StatelessWidget {
+  const _AccountRow({required this.state, required this.platform});
+
+  final AppState state;
+  final GamePlatform platform;
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final GameLibrary? library = state.libraryFor(platform);
+    final bool loading = platform == GamePlatform.steam
+        ? state.loadingSteam
+        : state.loadingPsn;
+    final String summary = loading
+        ? "Importando biblioteca..."
+        : library == null
+        ? "Não conectada"
+        : "${library.accountName} · ${library.games.length} jogos · ${library.platinumCount} platinas";
+
+    return HudPanel(
+      padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
       child: Row(
         children: [
-          const Icon(Icons.sports_esports_rounded, color: AppColors.primary),
+          Icon(platform.icon, color: platform.color),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Steam", style: textTheme.titleMedium),
+                Text(platform.label, style: textTheme.titleMedium),
                 Text(
-                  state.loadingSteam
-                      ? "Importando biblioteca..."
-                      : library == null
-                      ? "Não conectada"
-                      : "${library.profile.personaName} · ${formatHoursTotal(library.totalPlaytimeMinutes)} h jogadas",
+                  summary,
                   style: textTheme.bodySmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
           if (library == null)
             TextButton(
-              onPressed: state.loadingSteam
-                  ? null
-                  : () => openSteamConnect(context),
+              onPressed: loading ? null : () => openConnect(context, platform),
               child: const Text("Conectar"),
             )
           else
             TextButton(
               onPressed: () => MainShell.goToTab(context, MainShell.libraryTab),
-              child: const Text("Ver biblioteca"),
+              child: const Text("Ver"),
             ),
         ],
       ),

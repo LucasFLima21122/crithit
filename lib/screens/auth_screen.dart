@@ -5,6 +5,7 @@ import "../services/app_services.dart";
 import "../services/auth_service.dart";
 import "../state/app_state.dart";
 import "../theme/app_colors.dart";
+import "../widgets/common.dart";
 
 /// Login e cadastro na mesma tela (alterna entre os dois modos).
 class AuthScreen extends StatefulWidget {
@@ -163,12 +164,10 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                     if (_error != null) ...[
                       const SizedBox(height: 14),
-                      Container(
+                      HudPanel(
                         padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.danger.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        color: AppColors.danger.withValues(alpha: 0.12),
+                        borderColor: AppColors.danger.withValues(alpha: 0.5),
                         child: Row(
                           children: [
                             const Icon(

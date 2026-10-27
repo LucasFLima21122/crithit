@@ -1,14 +1,19 @@
+import "dart:ui" show ImageFilter;
+
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 
 import "../models/game.dart";
+import "../models/library.dart";
+import "../models/psn.dart";
 import "../models/review.dart";
-import "../models/steam.dart";
 import "../state/app_state.dart";
 import "../theme/app_colors.dart";
+import "../theme/app_theme.dart";
 import "../utils/formatters.dart";
 import "../widgets/common.dart";
 import "../widgets/game_cover.dart";
+import "../widgets/platform_style.dart";
 import "../widgets/platinum_badge.dart";
 import "../widgets/review_tile.dart";
 import "../widgets/star_rating.dart";
@@ -22,21 +27,25 @@ Future<void> openGame(BuildContext context, Game game) {
   );
 }
 
-/// Detalhe de um jogo: informações, nota média da comunidade, dados da
-/// biblioteca Steam (se o usuário tiver o jogo), a avaliação do usuário e
-/// as reviews da comunidade.
+/// Detalhe de um jogo: informações, nota média da comunidade, os dados das
+/// bibliotecas do usuário (Steam e/ou PlayStation), a avaliação dele e as
+/// reviews da comunidade.
 class GameDetailScreen extends StatelessWidget {
   const GameDetailScreen({super.key, required this.game});
 
   final Game game;
 
   Future<void> _openEditor(BuildContext context, Review? existing) async {
-    final String? message = await Navigator.of(context).push<String>(
-      MaterialPageRoute<String>(
-        builder: (_) => ReviewEditorScreen(game: game, existing: existing),
-      ),
-    );
-    if (message != null && context.mounted) showCritHitSnack(context, message);
+    final ReviewEditorResult? result = await Navigator.of(context)
+        .push<ReviewEditorResult>(
+          MaterialPageRoute<ReviewEditorResult>(
+            builder: (_) => ReviewEditorScreen(game: game, existing: existing),
+          ),
+        );
+    if (result == null || !context.mounted) return;
+    showCritHitSnack(context, result.message);
+    final int? rating = result.rating;
+    if (rating != null) showCritBurst(context, rating: rating, xp: result.xp);
   }
 
   @override
@@ -46,8 +55,7 @@ class GameDetailScreen extends StatelessWidget {
     final List<Review> reviews = state.reviewsFor(game.id);
     final Review? mine = state.myReviewFor(game.id);
     final List<Review> others = reviews.where((r) => r.id != mine?.id).toList();
-    final double average = state.averageFor(game.id);
-    final SteamOwnedGame? owned = state.steamEntryFor(game);
+    final List<OwnedGame> owned = state.ownedEntriesFor(game);
 
     return Scaffold(
       appBar: AppBar(title: Text(game.title, overflow: TextOverflow.ellipsis)),
@@ -55,142 +63,96 @@ class GameDetailScreen extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 32),
         children: [
           ContentWidth(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 8),
-                  Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _Header(game: game, reviews: reviews),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      GameCover(
-                        game: game,
-                        width: 112,
-                        borderRadius: 14,
-                        emojiSize: 48,
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(game.title, style: textTheme.headlineSmall),
-                            const SizedBox(height: 4),
-                            if (game.developer != null)
-                              Text(
-                                game.releaseYear == null
-                                    ? game.developer!
-                                    : "${game.developer} · ${game.releaseYear}",
-                                style: textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 6,
-                              runSpacing: 6,
-                              children: [
-                                _InfoChip(game.genre),
-                                for (final String p in game.platform.split(
-                                  " / ",
-                                ))
-                                  _InfoChip(p),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            StarRating(rating: average, size: 22),
-                            const SizedBox(height: 4),
-                            Text(
-                              reviews.isEmpty
-                                  ? "sem notas ainda"
-                                  : "${formatAverage(average)} de média · ${pluralReviews(reviews.length)}",
-                              style: textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                      ),
+                      for (final OwnedGame entry in owned) ...[
+                        const SizedBox(height: 12),
+                        _OwnedStatsCard(owned: entry),
+                      ],
                     ],
                   ),
-                  if (owned != null) ...[
-                    const SizedBox(height: 20),
-                    _SteamStatsCard(owned: owned),
-                  ],
-                  const SizedBox(height: 20),
-                  Text("Sinopse", style: textTheme.titleMedium),
-                  const SizedBox(height: 6),
-                  Text(game.synopsis, style: textTheme.bodyMedium),
-                  const SizedBox(height: 24),
-                  Text("Sua avaliação", style: textTheme.titleMedium),
-                  const SizedBox(height: 10),
-                  if (mine != null) ...[
-                    ReviewTile(review: mine, isMine: true),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () => _openEditor(context, mine),
-                        icon: const Icon(Icons.edit_rounded, size: 18),
-                        label: const Text("Editar avaliação"),
-                      ),
-                    ),
-                  ] else
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            "Zerou (ou desistiu de) esse jogo? Conta pra gente quantas estrelas ele merece.",
-                            style: textTheme.bodyMedium,
+                ),
+                const SectionHeader(title: "Sinopse"),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(game.synopsis, style: textTheme.bodyMedium),
+                ),
+                const SectionHeader(title: "Sua avaliação"),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: mine != null
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ReviewTile(review: mine, isMine: true),
+                            const SizedBox(height: 10),
+                            OutlinedButton.icon(
+                              onPressed: () => _openEditor(context, mine),
+                              icon: const Icon(Icons.edit_rounded, size: 18),
+                              label: const Text("Editar avaliação"),
+                            ),
+                          ],
+                        )
+                      : HudPanel(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                "Zerou (ou desistiu de) esse jogo? Conta pra gente quantas estrelas ele merece.",
+                                style: textTheme.bodyMedium,
+                              ),
+                              const SizedBox(height: 14),
+                              ElevatedButton.icon(
+                                onPressed: () => _openEditor(context, null),
+                                icon: const Icon(Icons.star_rounded),
+                                label: const Text("Avaliar este jogo"),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 12),
-                          ElevatedButton.icon(
-                            onPressed: () => _openEditor(context, null),
-                            icon: const Icon(Icons.star_rounded),
-                            label: const Text("Avaliar este jogo"),
+                        ),
+                ),
+                const SectionHeader(title: "Reviews da comunidade"),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (reviews.isNotEmpty) ...[
+                        HudPanel(
+                          child: RatingDistribution(
+                            ratings: reviews.map((r) => r.rating).toList(),
                           ),
-                        ],
-                      ),
-                    ),
-                  const SizedBox(height: 28),
-                  Text("Reviews da comunidade", style: textTheme.titleMedium),
-                  const SizedBox(height: 10),
-                  if (reviews.isNotEmpty) ...[
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: RatingDistribution(
-                        ratings: reviews.map((r) => r.rating).toList(),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  if (others.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Text(
-                        reviews.isEmpty
-                            ? "Ainda sem crítica nenhuma. Bora ser o primeiro a dar essa nota?"
-                            : "Por enquanto só você avaliou esse jogo.",
-                        style: textTheme.bodySmall,
-                      ),
-                    )
-                  else
-                    for (final Review review in others)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: ReviewTile(review: review),
-                      ),
-                ],
-              ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      if (others.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Text(
+                            reviews.isEmpty
+                                ? "Ainda sem crítica nenhuma. Bora ser o primeiro a dar essa nota?"
+                                : "Por enquanto só você avaliou esse jogo.",
+                            style: textTheme.bodySmall,
+                          ),
+                        )
+                      else
+                        for (final Review review in others)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: ReviewTile(review: review),
+                          ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -199,64 +161,155 @@ class GameDetailScreen extends StatelessWidget {
   }
 }
 
-class _InfoChip extends StatelessWidget {
-  const _InfoChip(this.label);
+/// Cabeçalho: capa, ficha técnica e a nota da comunidade em destaque, com a
+/// capa ampliada e desfocada ao fundo.
+class _Header extends StatelessWidget {
+  const _Header({required this.game, required this.reviews});
 
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceAlt,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(label, style: Theme.of(context).textTheme.bodySmall),
-    );
-  }
-}
-
-/// Card "Na sua Steam": horas jogadas, última sessão e conquistas.
-class _SteamStatsCard extends StatelessWidget {
-  const _SteamStatsCard({required this.owned});
-
-  final SteamOwnedGame owned;
+  final Game game;
+  final List<Review> reviews;
 
   @override
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
-      ),
+    final double average = reviews.isEmpty
+        ? 0
+        : reviews.fold<int>(0, (sum, r) => sum + r.rating) / reviews.length;
+
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: ImageFiltered(
+            imageFilter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+            child: Opacity(
+              opacity: 0.35,
+              child: GameCover(game: game, width: 600, height: 600),
+            ),
+          ),
+        ),
+        const Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.transparent, AppColors.background],
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GameCover(game: game, width: 116, emojiSize: 48),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(game.title, style: textTheme.headlineSmall),
+                    const SizedBox(height: 4),
+                    if (game.developer != null)
+                      Text(
+                        game.releaseYear == null
+                            ? game.developer!
+                            : "${game.developer} · ${game.releaseYear}",
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        HudTag(label: game.genre, color: AppColors.textPrimary),
+                        for (final String p in game.platform.split(" / "))
+                          HudTag(label: p),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    if (reviews.isEmpty)
+                      Text("sem notas ainda", style: textTheme.bodySmall)
+                    else
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            formatAverage(average),
+                            style: hudNumberStyle(fontSize: 38),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                StarRating(rating: average, size: 18),
+                                Text(
+                                  "média · ${pluralReviews(reviews.length)}",
+                                  style: textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Card "Na sua Steam" / "Na sua PlayStation": horas, última sessão e
+/// conquistas ou troféus.
+class _OwnedStatsCard extends StatelessWidget {
+  const _OwnedStatsCard({required this.owned});
+
+  final OwnedGame owned;
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final GamePlatform platform = owned.platform;
+    final OwnedGame entry = owned;
+    final PsnTrophyCounts? earned = entry is PsnOwnedGame ? entry.earned : null;
+
+    return HudPanel(
+      borderColor: platform.color.withValues(alpha: 0.45),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.sports_esports_rounded,
-                size: 18,
-                color: AppColors.primary,
-              ),
-              const SizedBox(width: 6),
+              Icon(platform.icon, size: 18, color: platform.color),
+              const SizedBox(width: 8),
               Expanded(
-                child: Text("Na sua Steam", style: textTheme.titleMedium),
+                child: Text(
+                  "Na sua ${platform.label}",
+                  style: textTheme.titleMedium,
+                ),
               ),
               if (owned.isPlatinum) const PlatinumBadge(),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: _Metric(
                   label: "Tempo de jogo",
-                  value: formatPlaytime(owned.playtimeMinutes),
+                  value: owned.playtimeMinutes > 0
+                      ? formatPlaytime(owned.playtimeMinutes)
+                      : owned.wasPlayed
+                      ? "—"
+                      : "nunca jogado",
                 ),
               ),
               Expanded(
@@ -270,30 +323,87 @@ class _SteamStatsCard extends StatelessWidget {
             ],
           ),
           if (owned.hasAchievements) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             Row(
               children: [
-                Text("Conquistas", style: textTheme.bodySmall),
+                Text(
+                  platform.achievementsLabel.toUpperCase(),
+                  style: hudLabelStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
                 const Spacer(),
                 Text(
-                  "${owned.achievementsUnlocked}/${owned.achievementsTotal} · ${(owned.achievementRatio * 100).round()}%",
-                  style: textTheme.bodySmall?.copyWith(
-                    color: AppColors.textPrimary,
-                  ),
+                  "${owned.achievementsUnlocked ?? 0}/${owned.achievementsTotal} · ${(owned.achievementRatio * 100).round()}%",
+                  style: hudNumberStyle(fontSize: 13),
                 ),
               ],
             ),
-            const SizedBox(height: 6),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: owned.achievementRatio,
-                minHeight: 6,
-                color: owned.isPlatinum ? AppColors.success : AppColors.primary,
-              ),
+            const SizedBox(height: 8),
+            SegmentedBar(
+              value: owned.achievementRatio,
+              segments: 20,
+              color: owned.isPlatinum ? AppColors.platinum : platform.color,
+            ),
+          ],
+          if (earned != null && earned.total > 0) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _TrophyCount(
+                  label: "Platina",
+                  count: earned.platinum,
+                  color: AppColors.platinum,
+                ),
+                _TrophyCount(
+                  label: "Ouro",
+                  count: earned.gold,
+                  color: const Color(0xFFE3B341),
+                ),
+                _TrophyCount(
+                  label: "Prata",
+                  count: earned.silver,
+                  color: const Color(0xFFB7BDC8),
+                ),
+                _TrophyCount(
+                  label: "Bronze",
+                  count: earned.bronze,
+                  color: const Color(0xFFC8875A),
+                ),
+              ],
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// Contador de um tipo de troféu da PSN (cores dos próprios troféus).
+class _TrophyCount extends StatelessWidget {
+  const _TrophyCount({
+    required this.label,
+    required this.count,
+    required this.color,
+  });
+
+  final String label;
+  final int count;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Tooltip(
+        message: label,
+        child: Row(
+          children: [
+            Icon(Icons.emoji_events_rounded, size: 15, color: color),
+            const SizedBox(width: 4),
+            Text("$count", style: hudNumberStyle(fontSize: 14)),
+          ],
+        ),
       ),
     );
   }
@@ -307,13 +417,15 @@ class _Metric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextTheme textTheme = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: textTheme.bodySmall),
-        const SizedBox(height: 2),
-        Text(value, style: textTheme.titleMedium),
+        Text(
+          label.toUpperCase(),
+          style: hudLabelStyle(fontSize: 10.5, color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 4),
+        Text(value, style: hudNumberStyle(fontSize: 18)),
       ],
     );
   }

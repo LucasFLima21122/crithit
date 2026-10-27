@@ -4,6 +4,7 @@ import "package:provider/provider.dart";
 import "../services/steam/steam_api.dart";
 import "../state/app_state.dart";
 import "../theme/app_colors.dart";
+import "../widgets/common.dart";
 
 /// Conectar a conta Steam: o usuário cola o link do perfil (ou o ID) e o
 /// app importa a biblioteca inteira. Volta com a mensagem de sucesso.
@@ -122,19 +123,21 @@ class _SteamConnectScreenState extends State<SteamConnectScreen> {
                   ),
                 ],
                 const SizedBox(height: 28),
-                Text("Como achar seu perfil", style: textTheme.titleMedium),
-                const SizedBox(height: 10),
-                const _Step(
+                const SectionHeader(
+                  title: "Como achar seu perfil",
+                  padding: EdgeInsets.fromLTRB(0, 0, 0, 12),
+                ),
+                const StepItem(
                   number: 1,
                   text:
                       "Na Steam (app ou site), clique no seu nome no topo e depois em \"Perfil\".",
                 ),
-                const _Step(
+                const StepItem(
                   number: 2,
                   text:
                       "Copie o endereço da página — algo como steamcommunity.com/id/seunick ou steamcommunity.com/profiles/7656119...",
                 ),
-                const _Step(
+                const StepItem(
                   number: 3,
                   text:
                       "Em \"Editar perfil\" › \"Privacidade\", deixe \"Meu perfil\" e \"Detalhes de jogos\" como Público. Sem isso a Steam não mostra seus jogos.",
@@ -143,38 +146,6 @@ class _SteamConnectScreenState extends State<SteamConnectScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _Step extends StatelessWidget {
-  const _Step({required this.number, required this.text});
-
-  final int number;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final TextTheme textTheme = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 24,
-            height: 24,
-            alignment: Alignment.center,
-            decoration: const BoxDecoration(
-              color: AppColors.surfaceAlt,
-              shape: BoxShape.circle,
-            ),
-            child: Text("$number", style: textTheme.bodySmall),
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(text, style: textTheme.bodyMedium)),
-        ],
       ),
     );
   }

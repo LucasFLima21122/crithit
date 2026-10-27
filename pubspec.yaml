@@ -1,7 +1,7 @@
 name: crithit
-description: "CritHit — avalie e comente os jogos que você jogou, com notas de 1 a 5 estrelas."
+description: "CritHit — avalie e comente os jogos que você jogou, com notas de 1 a 5 estrelas e suas bibliotecas Steam e PlayStation."
 publish_to: "none"
-version: 0.2.0
+version: 1.0.0+1
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
@@ -10,7 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  google_fonts: ^6.2.1
   # Estado compartilhado entre telas (sessão, reviews, biblioteca Steam).
   provider: ^6.1.5
   # Banco de dados (Postgres), autenticação e Edge Functions.
@@ -28,3 +27,24 @@ flutter:
   assets:
     - assets/covers/
     - assets/branding/
+  # Fontes embutidas (licença SIL OFL): o APK funciona offline e não
+  # depende de baixar fonte na primeira abertura.
+  fonts:
+    - family: ChakraPetch
+      fonts:
+        - asset: assets/fonts/ChakraPetch-500.ttf
+          weight: 500
+        - asset: assets/fonts/ChakraPetch-600.ttf
+          weight: 600
+        - asset: assets/fonts/ChakraPetch-700.ttf
+          weight: 700
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-400.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-500.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-600.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-700.ttf
+          weight: 700

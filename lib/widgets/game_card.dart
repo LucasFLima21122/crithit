@@ -2,13 +2,13 @@ import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 
 import "../models/game.dart";
-import "../models/steam.dart";
 import "../state/app_state.dart";
 import "../theme/app_colors.dart";
+import "../theme/app_theme.dart";
 import "../utils/formatters.dart";
 import "game_cover.dart";
+import "hud.dart";
 import "platinum_badge.dart";
-import "star_rating.dart";
 
 /// Card horizontal de um jogo (capa + título + nota média), usado nas listas.
 class GameCard extends StatelessWidget {
@@ -23,69 +23,84 @@ class GameCard extends StatelessWidget {
     final AppState state = context.watch<AppState>();
     final int count = state.reviewsFor(game.id).length;
     final double average = state.averageFor(game.id);
-    final SteamOwnedGame? owned = state.steamEntryFor(game);
+    final bool platinum = state
+        .ownedEntriesFor(game)
+        .any((owned) => owned.isPlatinum);
 
-    return Material(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
+    return HudPanel(
+      onTap: onTap,
+      padding: const EdgeInsets.all(10),
+      child: Row(
+        children: [
+          GameCover(game: game, width: 50),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  game.title,
+                  style: textTheme.titleMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  game.releaseYear == null
+                      ? game.genre
+                      : "${game.genre} · ${game.releaseYear}",
+                  style: textTheme.bodySmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (platinum) ...[
+                  const SizedBox(height: 6),
+                  const PlatinumBadge(),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Placar à direita: a nota é o dado principal do card.
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              GameCover(game: game, width: 52, borderRadius: 10),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              if (count == 0)
+                Text(
+                  "—",
+                  style: hudNumberStyle(
+                    fontSize: 22,
+                    color: AppColors.textMuted,
+                  ),
+                )
+              else
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      game.title,
-                      style: textTheme.titleMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    const Icon(
+                      Icons.star_rounded,
+                      size: 18,
+                      color: AppColors.accentGold,
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(width: 2),
                     Text(
-                      game.releaseYear == null
-                          ? game.genre
-                          : "${game.genre} · ${game.releaseYear}",
-                      style: textTheme.bodySmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        StarRating(rating: average, size: 16),
-                        const SizedBox(width: 8),
-                        Flexible(
-                          child: Text(
-                            count == 0
-                                ? "sem notas ainda"
-                                : "${formatAverage(average)} ($count)",
-                            style: textTheme.bodySmall,
-                            maxLines: 1,
-                          ),
-                        ),
-                      ],
+                      formatAverage(average),
+                      style: hudNumberStyle(fontSize: 22),
                     ),
                   ],
                 ),
-              ),
-              if (owned != null && owned.isPlatinum) ...[
-                const SizedBox(width: 8),
-                const PlatinumBadge(compact: true),
-              ],
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.textSecondary,
+              const SizedBox(height: 4),
+              Text(
+                count == 0 ? "SEM NOTA" : pluralReviews(count).toUpperCase(),
+                style: hudLabelStyle(
+                  fontSize: 9.5,
+                  color: AppColors.textMuted,
+                  letterSpacing: 0.8,
+                ),
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }

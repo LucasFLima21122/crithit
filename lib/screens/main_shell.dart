@@ -1,5 +1,7 @@
 import "package:flutter/material.dart";
 
+import "../theme/app_colors.dart";
+
 import "home_screen.dart";
 import "library_screen.dart";
 import "profile_screen.dart";
@@ -43,30 +45,36 @@ class _MainShellState extends State<MainShell> {
           ProfileScreen(),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: _select,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
-            label: "Início",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.search_rounded),
-            label: "Buscar",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.sports_esports_outlined),
-            selectedIcon: Icon(Icons.sports_esports_rounded),
-            label: "Biblioteca",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline_rounded),
-            selectedIcon: Icon(Icons.person_rounded),
-            label: "Perfil",
-          ),
-        ],
+      // Fio fino no topo da barra, como a borda de um painel HUD.
+      bottomNavigationBar: DecoratedBox(
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: AppColors.stroke)),
+        ),
+        child: NavigationBar(
+          selectedIndex: _index,
+          onDestinationSelected: _select,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home_rounded),
+              label: "Início",
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.search_rounded),
+              label: "Buscar",
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.sports_esports_outlined),
+              selectedIcon: Icon(Icons.sports_esports_rounded),
+              label: "Biblioteca",
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.person_outline_rounded),
+              selectedIcon: Icon(Icons.person_rounded),
+              label: "Perfil",
+            ),
+          ],
+        ),
       ),
     );
   }

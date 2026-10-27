@@ -1,17 +1,11 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:google_fonts/google_fonts.dart";
 
 import "package:crithit/main.dart";
 import "package:crithit/services/app_services.dart";
 
 /// Testes de navegação do fluxo principal, no modo offline (dados mockados).
 void main() {
-  setUpAll(() {
-    // Evita que o teste tente baixar fontes pela rede.
-    GoogleFonts.config.allowRuntimeFetching = false;
-  });
-
   Future<void> startApp(WidgetTester tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2.5;
@@ -36,11 +30,11 @@ void main() {
   ) async {
     await startApp(tester);
 
-    expect(find.text("CritHit"), findsOneWidget);
+    expect(find.text("CRITHIT"), findsOneWidget);
     expect(find.text("Cada jogo merece uma crítica."), findsOneWidget);
     expect(find.text("Entrar"), findsOneWidget);
     expect(find.text("Criar conta"), findsOneWidget);
-    expect(find.text("Modo offline · dados de exemplo"), findsOneWidget);
+    expect(find.text("OFFLINE · DADOS DE EXEMPLO"), findsOneWidget);
   });
 
   testWidgets("Cadastro valida os campos e entra no app", (tester) async {
@@ -70,7 +64,8 @@ void main() {
     await settle(tester);
 
     expect(find.text("E aí, Lucas!"), findsOneWidget);
-    expect(find.text("Em alta na comunidade"), findsOneWidget);
+    expect(find.text("DESTAQUE DA COMUNIDADE"), findsOneWidget);
+    expect(find.text("EM ALTA NA COMUNIDADE"), findsOneWidget);
   });
 
   testWidgets("Avaliar um jogo salva a review e ela aparece no perfil", (
@@ -110,7 +105,14 @@ void main() {
     expect(find.text("Ótimo"), findsOneWidget);
     await tester.enterText(find.byType(TextField), "Curto e emocionante.");
     await tester.tap(find.text("Salvar avaliação"));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // O "acerto" salta na tela com o XP ganho pela primeira crítica.
+    expect(find.text("HIT!"), findsOneWidget);
+    expect(find.text("+100 XP"), findsOneWidget);
     await tester.pumpAndSettle();
+    expect(find.text("HIT!"), findsNothing);
 
     expect(
       find.text("Review salva! Combo de bom gosto ativado."),
@@ -124,7 +126,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(NavigationDestination, "Perfil"));
     await tester.pumpAndSettle();
-    expect(find.text("Suas críticas"), findsOneWidget);
+    expect(find.text("SUAS CRÍTICAS"), findsOneWidget);
     expect(find.text("Curto e emocionante."), findsOneWidget);
   });
 
@@ -170,7 +172,53 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text("Na sua Steam"), findsOneWidget);
     expect(find.text("49/49 · 100%"), findsOneWidget);
-    expect(find.text("Platinado"), findsOneWidget);
+    expect(find.text("PLATINADO"), findsOneWidget);
+  });
+
+  testWidgets("Conectar PSN importa troféus e platinas de verdade", (
+    tester,
+  ) async {
+    await startApp(tester);
+    await enterAsGuest(tester);
+
+    await tester.tap(find.widgetWithText(NavigationDestination, "Biblioteca"));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text("PlayStation"));
+    await tester.pumpAndSettle();
+    expect(find.text("Traga sua PSN pro CritHit"), findsOneWidget);
+
+    await tester.tap(find.text("Conectar PSN"));
+    await tester.pumpAndSettle();
+
+    // ID inválido nem sai do app; privacidade fechada mostra a instrução.
+    await tester.enterText(find.byType(TextField), "privado_demais");
+    await tester.tap(find.text("Importar conta PSN"));
+    await settle(tester);
+    expect(
+      find.textContaining("deixe \"Troféus\" e \"Jogos\""),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text("Usar conta de demonstração"));
+    await settle(tester);
+    expect(
+      find.textContaining("Conta PSN importada! 12 jogos e 4 platinas"),
+      findsOneWidget,
+    );
+    expect(find.text("crithit_demo"), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(ChoiceChip, "Platinados"));
+    await tester.pumpAndSettle();
+    expect(find.text("4 jogos"), findsOneWidget);
+    // Exclusivo fora do catálogo vira um jogo importado da PSN.
+    expect(find.text("Astro Bot"), findsOneWidget);
+
+    // God of War casa com o catálogo pelo nome e mostra os troféus.
+    await tester.tap(find.text("God of War"));
+    await tester.pumpAndSettle();
+    expect(find.text("Na sua PlayStation"), findsOneWidget);
+    expect(find.text("37/37 · 100%"), findsOneWidget);
+    expect(find.text("PLATINADO"), findsOneWidget);
   });
 
   testWidgets("Busca filtra por plataforma e mostra estado vazio", (
@@ -181,7 +229,7 @@ void main() {
     await tester.tap(find.widgetWithText(NavigationDestination, "Buscar"));
     await tester.pumpAndSettle();
 
-    expect(find.text("17 jogos"), findsOneWidget);
+    expect(find.text("21 jogos"), findsOneWidget);
 
     await tester.tap(find.widgetWithText(FilterChip, "Switch"));
     await tester.pumpAndSettle();
@@ -197,6 +245,6 @@ void main() {
 
     await tester.tap(find.text("Limpar filtros"));
     await tester.pumpAndSettle();
-    expect(find.text("17 jogos"), findsOneWidget);
+    expect(find.text("21 jogos"), findsOneWidget);
   });
 }

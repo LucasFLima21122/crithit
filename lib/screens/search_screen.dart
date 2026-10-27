@@ -21,7 +21,7 @@ enum _SortOrder {
 }
 
 /// Aba "Buscar": busca por nome/desenvolvedora, filtros por plataforma e
-/// gênero, "só jogos da minha Steam" e ordenação.
+/// gênero, "só jogos da minha biblioteca" (Steam ou PSN) e ordenação.
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -33,7 +33,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _query = TextEditingController();
   String? _platform;
   String? _genre;
-  bool _onlySteam = false;
+  bool _onlyOwned = false;
   _SortOrder _sort = _SortOrder.bestRated;
 
   @override
@@ -46,14 +46,14 @@ class _SearchScreenState extends State<SearchScreen> {
       _query.text.isNotEmpty ||
       _platform != null ||
       _genre != null ||
-      _onlySteam;
+      _onlyOwned;
 
   void _clearFilters() {
     setState(() {
       _query.clear();
       _platform = null;
       _genre = null;
-      _onlySteam = false;
+      _onlyOwned = false;
     });
   }
 
@@ -69,7 +69,7 @@ class _SearchScreenState extends State<SearchScreen> {
         return false;
       }
       if (_genre != null && game.genre != _genre) return false;
-      if (_onlySteam && state.steamEntryFor(game) == null) return false;
+      if (_onlyOwned && state.ownedEntriesFor(game).isEmpty) return false;
       return true;
     }).toList();
 
@@ -143,13 +143,13 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             _ChipRow(
               children: [
-                if (state.library != null)
+                if (state.hasAnyLibrary)
                   FilterChip(
                     avatar: const Icon(Icons.sports_esports_rounded, size: 16),
-                    label: const Text("Na minha Steam"),
-                    selected: _onlySteam,
+                    label: const Text("Na minha biblioteca"),
+                    selected: _onlyOwned,
                     onSelected: (selected) =>
-                        setState(() => _onlySteam = selected),
+                        setState(() => _onlyOwned = selected),
                   ),
                 for (final String genre in kGenres)
                   FilterChip(
@@ -225,12 +225,12 @@ class _SearchScreenState extends State<SearchScreen> {
                       child: EmptyState(
                         emoji: "🕹️",
                         title: "Nenhum jogo encontrado",
-                        message: state.library == null
-                            ? "Tenta outro nome ou tira algum filtro. Dica: importando sua Steam, todos os seus jogos aparecem aqui."
-                            : "Tenta outro nome ou tira algum filtro.",
-                        actionLabel: state.library == null
-                            ? "Importar Steam"
-                            : null,
+                        message: state.hasAnyLibrary
+                            ? "Tenta outro nome ou tira algum filtro."
+                            : "Tenta outro nome ou tira algum filtro. Dica: importando sua Steam ou sua PSN, todos os seus jogos aparecem aqui.",
+                        actionLabel: state.hasAnyLibrary
+                            ? null
+                            : "Importar biblioteca",
                         onAction: () =>
                             MainShell.goToTab(context, MainShell.libraryTab),
                       ),
@@ -238,7 +238,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   : ListView.separated(
                       padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
                       itemCount: results.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      separatorBuilder: (_, _) => const SizedBox(height: 10),
                       itemBuilder: (context, index) => GameCard(
                         game: results[index],
                         onTap: () => openGame(context, results[index]),
@@ -265,7 +265,7 @@ class _ChipRow extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         itemCount: children.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) => children[index],
       ),
     );

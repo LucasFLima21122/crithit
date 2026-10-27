@@ -5,14 +5,28 @@ import "../models/game.dart";
 import "../models/review.dart";
 import "../state/app_state.dart";
 import "../theme/app_colors.dart";
+import "../theme/app_theme.dart";
 import "../utils/formatters.dart";
+import "../utils/player_level.dart";
 import "../widgets/common.dart";
 import "../widgets/game_cover.dart";
 import "../widgets/star_rating.dart";
 
+/// O que o editor devolve para a tela anterior: a mensagem de sucesso e,
+/// quando salvou, a nota e o XP ganho (para o "CRITICAL HIT!").
+class ReviewEditorResult {
+  const ReviewEditorResult(this.message, {this.rating, this.xp});
+
+  final String message;
+  final int? rating;
+
+  /// XP ganho: só na primeira vez que o jogo é avaliado.
+  final int? xp;
+}
+
 /// Escrever (ou editar) a avaliação de um jogo: nota de 1 a 5 estrelas e
-/// crítica em texto. Ao salvar, volta para o detalhe com a mensagem de
-/// sucesso como resultado da rota.
+/// crítica em texto. Ao salvar, volta para o detalhe com um
+/// [ReviewEditorResult] como resultado da rota.
 class ReviewEditorScreen extends StatefulWidget {
   const ReviewEditorScreen({super.key, required this.game, this.existing});
 
@@ -58,9 +72,17 @@ class _ReviewEditorScreenState extends State<ReviewEditorScreen> {
         comment: _comment.text,
       );
       navigator.pop(
-        _isEditing
-            ? "Review atualizada!"
-            : "Review salva! Combo de bom gosto ativado.",
+        ReviewEditorResult(
+          _isEditing
+              ? "Review atualizada!"
+              : "Review salva! Combo de bom gosto ativado.",
+          rating: _rating,
+          xp: _isEditing
+              ? null
+              : (_comment.text.trim().isEmpty
+                    ? PlayerLevel.xpPerRating
+                    : PlayerLevel.xpPerReview),
+        ),
       );
     } on Object {
       if (mounted) {
@@ -98,7 +120,7 @@ class _ReviewEditorScreenState extends State<ReviewEditorScreen> {
     final NavigatorState navigator = Navigator.of(context);
     try {
       await context.read<AppState>().deleteReview(widget.existing!);
-      navigator.pop("Review apagada.");
+      navigator.pop(const ReviewEditorResult("Review apagada."));
     } on Object {
       if (mounted) {
         setState(() => _saving = false);
@@ -129,7 +151,7 @@ class _ReviewEditorScreenState extends State<ReviewEditorScreen> {
               children: [
                 Row(
                   children: [
-                    GameCover(game: widget.game, width: 48, borderRadius: 8),
+                    GameCover(game: widget.game, width: 48),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -142,21 +164,34 @@ class _ReviewEditorScreenState extends State<ReviewEditorScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 28),
-                Center(
-                  child: StarRating(
-                    rating: _rating.toDouble(),
-                    size: 48,
-                    onChanged: (value) => setState(() => _rating = value),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Center(
-                  child: Text(
-                    ratingLabel(_rating),
-                    style: _rating == 0
-                        ? textTheme.bodySmall
-                        : textTheme.titleMedium,
+                const SizedBox(height: 24),
+                // Painel da nota: as estrelas e o "veredito" em destaque.
+                HudPanel(
+                  padding: const EdgeInsets.fromLTRB(12, 20, 12, 18),
+                  borderColor: _rating == 5
+                      ? AppColors.primary
+                      : AppColors.stroke,
+                  child: Column(
+                    children: [
+                      StarRating(
+                        rating: _rating.toDouble(),
+                        size: 48,
+                        onChanged: (value) => setState(() => _rating = value),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        _rating == 0 ? ratingLabel(0) : ratingLabel(_rating),
+                        textAlign: TextAlign.center,
+                        style: _rating == 0
+                            ? textTheme.bodySmall
+                            : hudLabelStyle(
+                                fontSize: 18,
+                                color: _rating == 5
+                                    ? AppColors.primary
+                                    : AppColors.textPrimary,
+                              ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 28),

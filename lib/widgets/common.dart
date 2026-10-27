@@ -1,40 +1,13 @@
 import "package:flutter/material.dart";
 
 import "../theme/app_colors.dart";
+import "../theme/app_theme.dart";
+import "../theme/hud_shapes.dart";
+import "hud.dart";
 
-/// Título de seção com ação opcional à direita ("Ver tudo").
-class SectionHeader extends StatelessWidget {
-  const SectionHeader({
-    super.key,
-    required this.title,
-    this.actionLabel,
-    this.onAction,
-    this.padding = const EdgeInsets.fromLTRB(16, 24, 8, 10),
-  });
+export "hud.dart";
 
-  final String title;
-  final String? actionLabel;
-  final VoidCallback? onAction;
-  final EdgeInsets padding;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: padding,
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(title, style: Theme.of(context).textTheme.titleLarge),
-          ),
-          if (actionLabel != null)
-            TextButton(onPressed: onAction, child: Text(actionLabel!)),
-        ],
-      ),
-    );
-  }
-}
-
-/// Estado vazio padrão: emoji grande, título, texto de apoio e ação.
+/// Estado vazio padrão: emoji num painel HUD, título, texto de apoio e ação.
 class EmptyState extends StatelessWidget {
   const EmptyState({
     super.key,
@@ -59,8 +32,17 @@ class EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 48)),
-          const SizedBox(height: 12),
+          Container(
+            width: 84,
+            height: 84,
+            alignment: Alignment.center,
+            decoration: ShapeDecoration(
+              color: AppColors.surface,
+              shape: HudShapes.outlined(cut: 16),
+            ),
+            child: Text(emoji, style: const TextStyle(fontSize: 40)),
+          ),
+          const SizedBox(height: 16),
           Text(title, style: textTheme.titleLarge, textAlign: TextAlign.center),
           const SizedBox(height: 6),
           Text(
@@ -80,7 +62,8 @@ class EmptyState extends StatelessWidget {
   }
 }
 
-/// Número grande + legenda, usado nas estatísticas do perfil e da Steam.
+/// Número grande + legenda em caixa alta, usado nas estatísticas do perfil
+/// e das bibliotecas. É o "placar" da interface.
 class StatTile extends StatelessWidget {
   const StatTile({
     super.key,
@@ -97,13 +80,9 @@ class StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextTheme textTheme = Theme.of(context).textTheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-      ),
+    return HudPanel(
+      cut: 10,
+      padding: const EdgeInsets.fromLTRB(8, 12, 8, 10),
       child: Column(
         children: [
           Row(
@@ -117,17 +96,21 @@ class StatTile extends StatelessWidget {
               Flexible(
                 child: Text(
                   value,
-                  style: textTheme.titleLarge,
+                  style: hudNumberStyle(fontSize: 22),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 6),
           Text(
-            label,
-            style: textTheme.bodySmall,
+            label.toUpperCase(),
+            style: hudLabelStyle(
+              fontSize: 10,
+              color: AppColors.textSecondary,
+              letterSpacing: 1,
+            ),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -138,7 +121,8 @@ class StatTile extends StatelessWidget {
   }
 }
 
-/// Avatar redondo: foto (ex.: avatar da Steam) ou iniciais.
+/// Avatar com o canto cortado do H do logo: foto (ex.: avatar da Steam ou
+/// da PSN) ou as iniciais sobre o Crit Red.
 class UserAvatar extends StatelessWidget {
   const UserAvatar({
     super.key,
@@ -158,26 +142,66 @@ class UserAvatar extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: AppColors.primary,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.primary, AppColors.primaryDeep],
+        ),
       ),
       child: Text(
         initials,
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontSize: size * 0.38,
-          color: Colors.white,
-        ),
+        style: hudNumberStyle(fontSize: size * 0.4, color: Colors.white),
       ),
     );
     final String? url = imageUrl;
-    if (url == null) return fallback;
-    return ClipOval(
-      child: Image.network(
-        url,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => fallback,
+    return ClipPath(
+      clipper: ShapeBorderClipper(shape: HudShapes.notch(cut: size * 0.22)),
+      child: url == null
+          ? fallback
+          : Image.network(
+              url,
+              width: size,
+              height: size,
+              fit: BoxFit.cover,
+              webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
+              errorBuilder: (context, error, stackTrace) => fallback,
+            ),
+    );
+  }
+}
+
+/// Um passo numerado de instruções (ex.: "como achar seu perfil").
+class StepItem extends StatelessWidget {
+  const StepItem({super.key, required this.number, required this.text});
+
+  final int number;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 26,
+            height: 26,
+            alignment: Alignment.center,
+            decoration: ShapeDecoration(
+              color: AppColors.surface,
+              shape: HudShapes.outlined(cut: 6),
+            ),
+            child: Text(
+              "$number",
+              style: hudNumberStyle(fontSize: 13, color: AppColors.primary),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+          ),
+        ],
       ),
     );
   }

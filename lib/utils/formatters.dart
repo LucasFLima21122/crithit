@@ -37,16 +37,19 @@ String formatPlaytime(int minutes) {
   return "${hours.round()} h";
 }
 
-/// Total de horas, sem casas decimais, com separador de milhar: "1.204".
-String formatHoursTotal(int minutes) {
-  final String digits = (minutes / 60).round().toString();
-  final StringBuffer buffer = StringBuffer();
+/// Inteiro com separador de milhar: "1.204".
+String formatThousands(int value) {
+  final String digits = value.abs().toString();
+  final StringBuffer buffer = StringBuffer(value < 0 ? "-" : "");
   for (int i = 0; i < digits.length; i++) {
     if (i > 0 && (digits.length - i) % 3 == 0) buffer.write(".");
     buffer.write(digits[i]);
   }
   return buffer.toString();
 }
+
+/// Total de horas, sem casas decimais, com separador de milhar: "1.204".
+String formatHoursTotal(int minutes) => formatThousands((minutes / 60).round());
 
 /// Média com uma casa decimal e vírgula: "4,3".
 String formatAverage(double value) =>
