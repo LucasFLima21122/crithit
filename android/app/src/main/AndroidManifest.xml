@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Supabase (login e reviews), Steam e PSN. Sem isso o APK de release
+         fica sem rede: a permissão só vem de graça no build de debug. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="CritHit"
         android:name="${applicationName}"
