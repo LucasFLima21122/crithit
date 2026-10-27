@@ -15,7 +15,8 @@
 | Alternativa existente | Limitação | Como o CritHit resolve |
 |---|---|---|
 | Metacritic / OpenCritic | Nota de imprensa especializada, sem voz do jogador comum | Nota e review vêm de quem realmente jogou |
-| Steam Reviews | Preso à loja, só cobre jogos de PC/Steam | Multiplataforma: PC, console, mobile, no mesmo perfil |
+| Steam Reviews | Preso à loja, só cobre jogos de PC/Steam | Multiplataforma: importa a biblioteca da Steam **e** da PlayStation, com horas, troféus e platinas, no mesmo perfil |
+| PSNProfiles / TrueAchievements | Contam troféus e conquistas, mas não guardam a opinião de quem jogou | O histórico importado vira ponto de partida para a nota e a crítica |
 | Planilhas / grupos de WhatsApp | Não escala, não gera histórico bonito nem descoberta | Perfil público, histórico organizado, descoberta por outros usuários |
 | Redes sociais genéricas | Review de jogo se perde no meio de outros posts | Produto 100% focado em jogos, com estrutura de nota + review |
 
@@ -30,4 +31,5 @@ O MVP acadêmico (Checkpoints 4–6) é gratuito e sem monetização — o foco 
 ## Diferencial dentro do próprio projeto acadêmico
 
 - Identidade de marca própria (CritHit) construída do zero, não um clone genérico.
-- Arquitetura Flutter pensada desde o CP4 para evoluir com dados mockados (CP5) até um MVP instalável (CP6), sem retrabalho de estrutura.
+- Arquitetura Flutter pensada desde o CP4 para evoluir com dados mockados (CP5) até um MVP instalável (CP6), sem retrabalho de estrutura: a integração com a PlayStation entrou no CP6 sem mudar as telas de biblioteca, porque elas já falavam com uma interface comum de "jogo importado".
+- Gamificação que nasce do nome: o "acerto crítico" virou o nível de crítico do jogador (XP por review, platina e hora jogada), um motivo a mais para voltar e avaliar.

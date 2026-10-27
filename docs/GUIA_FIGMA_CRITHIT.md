@@ -1,5 +1,7 @@
 # Guia Figma — Identidade Visual do CritHit
 
+> **Documento histórico do Checkpoint 4 (identidade v1).** No CP6 a identidade evoluiu para a v2 "HUD": Crit Red (`#FF4655`) no lugar do Mana Blue, Chakra Petch no lugar da Space Grotesk e os cantos cortados do H em toda a interface. A referência atual é o [`BRANDING.md`](BRANDING.md); este guia fica como registro de como o logo foi criado.
+
 Guia prático pra montar a identidade visual do CritHit no Figma: o arquivo, o logo (monograma "Ch"), a paleta e a tipografia — já com os valores atualizados depois da mudança pra paleta escura.
 
 ## 1. Criando o arquivo

@@ -36,40 +36,61 @@ Exemplos de microcopy:
 | Erro genérico | "Deu ruim aqui do nosso lado. Tenta de novo?" |
 | Convite para avaliar | "Zerou (ou desistiu de) esse jogo? Conta pra gente quantas estrelas ele merece." |
 
+## Identidade v2 (Checkpoint 6): linguagem "HUD"
+
+No feedback do CP5, o professor apontou que o visual precisava ser **mais único e característico**. O diagnóstico do grupo: a paleta era literalmente a padrão do Tailwind (`#3B82F6`, `#4ADE80`, `#F87171`) e o resto eram componentes Material 3 com cantos arredondados, a cara de qualquer app. A v2 mantém a base escura e o significado das cores, mas troca o que era genérico por elementos tirados do próprio nome e do logo:
+
+- **O corte diagonal vem do logo.** O "H" do logo sempre teve o canto superior direito cortado. Esse chanfro virou a assinatura da interface: painéis, botões, campos e etiquetas cortam dois cantos opostos (como as placas de HUD dos jogos) e as capas e avatares cortam só o superior direito, igual ao H. Não existe mais nenhum canto arredondado no app (`lib/theme/hud_shapes.dart`).
+- **"Crit Red" no lugar do azul.** *Critical hit* é o acerto crítico, e nos jogos o número do dano crítico salta em vermelho. A cor da marca e da ação virou o Crit Red, e o H do logo foi recolorido junto.
+- **Números como placar.** Notas, horas, nível e contadores usam Chakra Petch, uma fonte angulosa que combina com os cortes, em tamanho grande: a nota de um jogo aparece como o "dano" que ele causou.
+- **Barras segmentadas.** Progresso de conquistas/troféus, distribuição de notas e XP usam barras em segmentos inclinados, como a barra de vida de um personagem (`SegmentedBar`).
+- **Momento "CRITICAL HIT!".** Ao salvar uma review, o acerto salta na tela como número de dano; nota 5 é um *critical hit* em vermelho, e a primeira crítica de um jogo mostra o XP ganho.
+- **Ficha do jogador.** O perfil virou uma ficha de RPG: nível de crítico, título (Novato → Aventureiro → Crítico → Veterano → Lenda) e barra de XP. Crítica com texto vale 100 XP, só a nota 50, cada platina 250 e cada hora jogada 1 XP. A regra aparece no próprio app.
+- **Seções como HUD.** Os títulos de seção viram rótulos em caixa alta, com uma marca vermelha inclinada e um fio até a borda.
+
 ## Paleta de cores
 
-Base neutra em tons de cinza/preto, com acentos coloridos usados com significado, não é "cor por decoração", cada uma marca um estado diferente da interface.
+Base neutra em tons de cinza/preto (a mesma do fundo do logo), com acentos coloridos usados com significado. Não é "cor por decoração": cada uma marca um estado diferente da interface.
 
 | Token | Hex | Uso |
 |---|---|---|
-| `background` | `#101012` | Fundo geral do app |
-| `surface` | `#19191D` | Cards, listas, campos |
-| `surfaceAlt` | `#24242A` | Elementos elevados (modais, app bar, inputs) |
-| `coverBackground` | `#22303F` | Fundo da capa de um jogo sem imagem real ainda |
-| `primary` (Mana Blue) | `#3B82F6` | Ação primária — botões, ícones e destaques de navegação |
-| `accentGold` (Loot Gold) | `#FFC857` | Estrelas de avaliação — a cor mais importante do produto |
-| `success` (Combo Green) | `#4ADE80` | Estados positivos (ex: "review salva com sucesso") |
-| `danger` (Boss Red) | `#F87171` | Erros e alertas (ex: "falta escolher uma nota") |
-| `textPrimary` | `#F2F2F5` | Texto principal sobre fundo escuro |
+| `background` | `#101012` | Fundo geral do app (igual ao fundo do logo) |
+| `surface` | `#18181D` | Painéis, cards, campos |
+| `surfaceAlt` | `#222229` | Elementos elevados (diálogos, menus), trilhos das barras |
+| `stroke` | `#2E2E37` | Contorno fino dos painéis HUD e divisórias |
+| `primary` (**Crit Red**) | `#FF4655` | Cor da marca e da ação: botões, navegação, marcas de seção, o H do logo |
+| `accentGold` (Loot Gold) | `#FFC857` | Estrelas de avaliação, a cor mais importante do produto |
+| `platinum` (Platinum) | `#C9D7EE` | Selo de platina (Steam e PlayStation) |
+| `success` (Combo Green) | `#3DDC97` | Estados positivos (ex.: "review salva"), XP ganho |
+| `danger` (**Boss Orange**) | `#FF8A3D` | Erros e alertas |
+| `textPrimary` | `#F2F2F5` | Texto principal |
 | `textSecondary` | `#9C9CA6` | Texto de apoio, metadados |
+| `steam` / `playstation` | `#66C0F4` / `#2E8BFF` | Só nos ícones e etiquetas de cada plataforma |
 
-**Regra de uso**: dourado é exclusivo das estrelas de nota (nunca usar em outro lugar, pra manter o significado forte); azul é a cor de ação padrão; verde e vermelho só aparecem em feedbacks de sucesso/erro, nunca como decoração solta. A partir do CP5, o selo de **Platinado** (100% das conquistas de um jogo na Steam) também usa o Combo Green, por ser uma conquista (estado positivo), e não o dourado, que segue exclusivo das estrelas.
+**Regras de uso**:
+
+- **Dourado é exclusivo das estrelas** (desde o CP4), para manter o significado forte.
+- **Vermelho é marca e ação**, nunca erro. Por isso o erro saiu do vermelho ("Boss Red") e foi para o laranja ("Boss Orange"): com o Crit Red como cor da marca, um erro vermelho seria confundido com um botão.
+- **Platina tem cor própria.** No CP5 o selo usava o verde de sucesso. Com a PlayStation, a platina passou a ser o troféu de verdade, então ganhou a cor do próprio metal. O dourado continua só das estrelas.
+- Cores de plataforma (Steam, PlayStation) só aparecem nos ícones e etiquetas delas.
 
 ## Tipografia
 
-- **Títulos e destaques**: `Space Grotesk` (geométrica, moderna, com personalidade, usada em nomes de jogos, títulos de tela e no logotipo).
-- **Corpo de texto**: `Inter` (alta legibilidade em telas pequenas, ótima para reviews longas e listas).
-- **Fallback no código**: enquanto as fontes customizadas são carregadas via `google_fonts`, o Material 3 usa a família padrão da plataforma como fallback automático, ou seja, o app nunca fica sem tipografia definida.
+- **Títulos, números e rótulos HUD**: `Chakra Petch` (geométrica e angulosa, conversa com os cortes diagonais; em caixa alta e espaçada nos rótulos de seção e botões). Substituiu a Space Grotesk do CP4, que era limpa mas pouco característica.
+- **Corpo de texto**: `Inter` (alta legibilidade em telas pequenas, ótima para reviews longas e listas). Mantida do CP4.
+- **Fontes embutidas**: os arquivos ficam em `assets/fonts/` (licença SIL Open Font License). Até o CP5 elas eram baixadas pelo pacote `google_fonts` na primeira abertura; no APK isso deixaria o app sem a fonte certa quando estivesse offline, então agora vão dentro do app.
 
 ## Aplicações do logo
 
-- `docs/brand/logo.png` — símbolo oficial: monograma "Ch" (branco + Mana Blue) com uma estrela dourada, sobre fundo escuro. Usado no app (tela inicial) e nesta documentação.
-- `assets/branding/logo.png` — a mesma imagem, dentro do projeto Flutter, referenciada na tela de boas-vindas (`lib/screens/welcome_screen.dart`) e na tela inicial (`lib/screens/home_screen.dart`). Os ícones da versão web (`web/icons/`, `web/favicon.png`) foram gerados a partir dela.
+- `docs/brand/logo.png` — símbolo oficial: monograma "Ch" (C branco + H em **Crit Red**, com o canto cortado) e uma estrela dourada, sobre fundo escuro. Na v2 só a cor do H mudou (era Mana Blue).
+- `assets/branding/logo.png` — a mesma imagem, dentro do projeto Flutter, usada nas boas-vindas, na barra da tela inicial e no rodapé, sempre recortada com o canto do H. O ícone do app no Android (`android/app/src/main/res/mipmap-*`), os ícones da web (`web/icons/`, `web/favicon.png`) e o do Windows (`windows/runner/resources/app_icon.ico`) foram gerados a partir dela.
 
 > **Próximo passo (opcional)**: essa é a v1 do logo, em PNG. Se o grupo quiser refinar (ajustar proporções, testar em tamanho de ícone bem pequeno), o `docs/GUIA_FIGMA_CRITHIT.md` tem o passo a passo pra recriar como vetor no Figma e exportar um `.svg` — que dá mais nitidez em qualquer tamanho e substitui este PNG sem mudar mais nada.
 
 
 ## Mini brandbook (HTML)
+
+> O brandbook HTML e os prints abaixo são do **Checkpoint 4 (identidade v1)**, com o azul e a Space Grotesk. A identidade atual é a v2 descrita acima; os prints do app com ela aplicada estão no README (`docs/screenshots/cp6/`).
 
 Além desta documentação em Markdown, montamos um **mini brandbook navegável** reunindo nome, tom de voz, paleta, tipografia e aplicações do logo em uma única página, com a identidade visual já aplicada nela mesma (fundo escuro, tipografia da marca, cores oficiais).
 

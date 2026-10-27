@@ -1,6 +1,6 @@
-# Guia: Supabase + Steam
+# Guia: Supabase + Steam + PlayStation
 
-Passo a passo para ligar o **modo online** do CritHit: banco de dados e login no Supabase, mais a importação da biblioteca Steam. Sem nada disso o app continua funcionando no modo offline (dados mockados).
+Passo a passo para ligar o **modo online** do CritHit: banco de dados e login no Supabase, mais a importação das bibliotecas Steam e PlayStation (PSN). Sem nada disso o app continua funcionando no modo offline (dados mockados).
 
 ## Visão geral
 
@@ -8,7 +8,9 @@ Passo a passo para ligar o **modo online** do CritHit: banco de dados e login no
 App Flutter ──► Supabase Auth          (login: e-mail/senha ou convidado)
             ──► Supabase Postgres      (tabelas profiles e reviews, com RLS)
             ──► Edge Function "steam"  ──► api.steampowered.com
-                 (guarda a STEAM_API_KEY e libera CORS para o navegador)
+            │    (guarda a STEAM_API_KEY e libera CORS para o navegador)
+            ──► Edge Function "psn"    ──► ca.account.sony.com + m.np.playstation.com
+                 (guarda o PSN_NPSSO, troca por token e libera CORS)
 ```
 
 ## 1. Criar o projeto no Supabase
@@ -23,7 +25,8 @@ App Flutter ──► Supabase Auth          (login: e-mail/senha ou convidado)
 No painel: **SQL Editor → New query**, cole e rode, nesta ordem:
 
 1. `supabase/migrations/20261005000000_crithit_schema.sql` (tabelas, RLS e triggers)
-2. `supabase/seed.sql` (as 43 reviews de exemplo da comunidade)
+2. `supabase/migrations/20261027000000_psn_account.sql` (coluna da conta PSN no perfil, CP6)
+3. `supabase/seed.sql` (as 43 reviews de exemplo da comunidade)
 
 Ou pelo terminal, com o [Supabase CLI](https://supabase.com/docs/guides/cli):
 
@@ -101,6 +104,46 @@ flutter run -d windows --dart-define=STEAM_API_KEY=<sua-chave>
 
 Use só para teste local: nesse modo a chave vai junto do executável. No navegador isso não funciona, porque a Steam bloqueia CORS; por isso existe a Edge Function.
 
+## 8. PlayStation (PSN)
+
+A Sony **não tem API pública**. O CritHit usa a mesma API do app oficial da PlayStation, a mesma que sites como PSNProfiles e Exophase e bibliotecas como [psn-api](https://github.com/achievements-app/psn-api) e [PSNAWP](https://github.com/isFakeAccount/psnawp) usam. Ela exige o login de **uma conta PSN do grupo**, representado por um token chamado **NPSSO**. Com ele, o servidor consulta o perfil público de qualquer pessoa pelo ID online, do mesmo jeito que você veria o perfil de outro jogador no console.
+
+### 8.1 Gerar o NPSSO
+
+1. No navegador, entre em [playstation.com](https://www.playstation.com/) com a conta PSN do grupo (de preferência uma conta criada só para isso, e não a pessoal de alguém).
+2. Na mesma aba, abra [ca.account.sony.com/api/v1/ssocookie](https://ca.account.sony.com/api/v1/ssocookie). Aparece algo como `{"npsso":"<64 caracteres>"}`.
+3. Copie só o valor. **Ele vale tanto quanto a senha da conta**: não cole em chat, código nem `env.json`.
+
+O NPSSO dura cerca de 2 meses. Quando expirar, o app mostra "O token da PSN do servidor expirou" e basta repetir estes passos e o `secrets set` abaixo.
+
+### 8.2 Publicar a Edge Function `psn`
+
+```bash
+npx supabase secrets set PSN_NPSSO=<token> --project-ref <ref-do-projeto>
+npx supabase functions deploy psn --project-ref <ref-do-projeto> --use-api
+```
+
+A função fica em `supabase/functions/psn/index.ts` e só aceita 3 ações (lista fechada): `profile` (perfil pelo ID online), `trophyTitles` (todos os jogos com troféu, de PS3 a PS5) e `playedGames` (tempo de jogo de PS4 e PS5). Ela faz a troca NPSSO → token de acesso uma vez e reaproveita o token enquanto a instância estiver quente.
+
+### 8.3 Privacidade do lado da PSN
+
+Para alguém importar a própria conta, em **Configurações › Usuários e contas › Privacidade** (PS5) ou no app PlayStation:
+
+- **Troféus**: Qualquer pessoa (traz jogos, progresso e platinas)
+- **Jogos** (histórico de jogo): Qualquer pessoa (traz o tempo de jogo)
+
+As duas são independentes: com só uma aberta, o app mostra o que der. Com as duas fechadas, explica o que ajustar.
+
+### 8.4 Teste local sem Supabase (opcional)
+
+Igual ao modo direto da Steam, só fora do navegador:
+
+```bash
+flutter run -d windows --dart-define=PSN_NPSSO=<token>
+```
+
+Use só para testar na sua máquina: nesse modo o token vai junto do executável.
+
 ## Problemas comuns
 
 | Sintoma | Causa provável |
@@ -111,3 +154,8 @@ Use só para teste local: nesse modo a chave vai junto do executável. No navega
 | "A chave da Steam não está configurada no servidor" | Faltou o `secrets set` (passo 5) |
 | "Esse perfil da Steam é privado" / "Não consegui ver seus jogos" | Privacidade da Steam (passo 7) |
 | Biblioteca carrega, mas sem conquistas | A Steam não respondeu o progresso de conquistas agora; atualize depois. Os jogos aparecem mesmo assim |
+| "O token da PSN não está configurado no servidor" | Faltou o `secrets set PSN_NPSSO` (passo 8.2) |
+| "O token da PSN do servidor expirou" | O NPSSO venceu (dura ~2 meses); gere outro (passo 8.1) |
+| "O servidor não conseguiu falar com a PSN (404)" | A função `psn` ainda não foi publicada (passo 8.2) |
+| "Não achei nenhuma conta da PSN com esse ID online" | ID digitado errado: é o nome do perfil, não o e-mail |
+| PSN importa, mas tudo com "—" no tempo de jogo | Privacidade "Jogos" fechada; só "Troféus" está aberta (passo 8.3) |

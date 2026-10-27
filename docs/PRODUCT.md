@@ -24,11 +24,13 @@ O MVP do CritHit responde a uma pergunta só: *"o que eu joguei, o que eu achei,
 4. **Perfil / histórico do usuário**: lista dos jogos avaliados por aquela pessoa, com nota e data.
 5. **Busca e detalhes do jogo**: tela de detalhe do jogo com sinopse, nota média da comunidade e lista de reviews de outros usuários.
 6. **Importação da biblioteca Steam** (adicionada no Checkpoint 5): o usuário conecta o perfil da Steam e todos os jogos dele entram no CritHit, com horas jogadas, conquistas e o selo de "Platinado" (100% das conquistas), sem precisar cadastrar jogo por jogo. Ataca direto a dor de "o histórico de jogos fica preso dentro de cada plataforma".
+7. **Importação da conta PlayStation** (adicionada no Checkpoint 6): com o ID online da PSN, entram os jogos de PS3 a PS5 com progresso de troféus, as **platinas de verdade** e o tempo de jogo de PS4/PS5. Um jogo que a pessoa tem nas duas plataformas mostra os dois históricos lado a lado na mesma página.
+8. **Nível de crítico** (Checkpoint 6): o perfil vira uma ficha de jogador com nível, título e XP, calculados a partir das reviews, das platinas e das horas jogadas.
 
-Funcionalidades fora do MVP (roadmap futuro): sistema de amigos/seguir usuários, listas personalizadas (tipo "quero jogar"), importação de PlayStation e Xbox (as APIs são fechadas ou não oficiais, por isso a Steam veio primeiro), recomendações por algoritmo.
+Funcionalidades fora do MVP (roadmap futuro): sistema de amigos/seguir usuários, listas personalizadas (tipo "quero jogar"), importação do Xbox (a API da Microsoft exige parceria/aprovação, então ficou para depois), recomendações por algoritmo.
 
 ## Escopo por Checkpoint
 
 - **Checkpoint 4**: conceito, marca, identidade visual e projeto Flutter inicial rodando (tela inicial com catálogo mockado e acesso à avaliação).
-- **Checkpoint 5 (este)**: navegação completa entre todas as telas do MVP (boas-vindas, login/cadastro, início, busca com filtros, biblioteca Steam, detalhe do jogo, avaliação, perfil), dados mockados realistas, banco de dados no Supabase (login, perfis e reviews) e importação da biblioteca Steam.
-- **Checkpoint 6**: MVP funcional completo, documentado e empacotado em um APK instalável.
+- **Checkpoint 5**: navegação completa entre todas as telas do MVP (boas-vindas, login/cadastro, início, busca com filtros, biblioteca Steam, detalhe do jogo, avaliação, perfil), dados mockados realistas, banco de dados no Supabase (login, perfis e reviews) e importação da biblioteca Steam.
+- **Checkpoint 6 (este)**: MVP funcional completo, documentado e empacotado em um APK instalável; identidade visual v2 ("HUD") a partir do feedback do CP5; importação da PlayStation; nível de crítico.
