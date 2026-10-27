@@ -3,12 +3,17 @@ import "package:flutter/foundation.dart";
 import "../data/mock_catalog.dart";
 import "../models/app_user.dart";
 import "../models/game.dart";
+import "../models/library.dart";
+import "../models/psn.dart";
 import "../models/review.dart";
 import "../models/steam.dart";
 import "../services/app_services.dart";
+import "../services/psn/psn_api.dart";
 import "../services/steam/steam_api.dart";
+import "../utils/player_level.dart";
 
-/// Estado compartilhado do app: sessão, reviews e biblioteca Steam.
+/// Estado compartilhado do app: sessão, reviews e bibliotecas importadas
+/// (Steam e PlayStation).
 ///
 /// As telas leem daqui com `context.watch<AppState>()` e chamam os métodos
 /// para agir; toda mudança chama [notifyListeners] e a interface se refaz.
@@ -62,30 +67,32 @@ class AppState extends ChangeNotifier {
     _user = null;
     _library = null;
     _steamError = null;
+    _psnLibrary = null;
+    _psnError = null;
     notifyListeners();
   }
 
   Future<void> _afterSignIn() async {
     await refreshReviews();
     final String? steamId = _user?.steamId;
-    if (steamId != null) await connectSteam(steamId, persist: false);
+    final String? psnOnlineId = _user?.psnOnlineId;
+    await Future.wait<void>([
+      if (steamId != null) connectSteam(steamId, persist: false),
+      if (psnOnlineId != null) connectPsn(psnOnlineId, persist: false),
+    ]);
   }
 
   // --------------------------------------------------------------- catálogo
 
   final List<Game> catalog = kMockCatalog;
 
-  /// Catálogo + jogos da biblioteca Steam que não estão no catálogo.
+  /// Catálogo + jogos das bibliotecas importadas que não estão no catálogo.
   List<Game> get allGames {
     final List<Game> games = List<Game>.of(catalog);
-    final Set<int> catalogAppIds = catalog
-        .map((g) => g.steamAppId)
-        .whereType<int>()
-        .toSet();
-    for (final SteamOwnedGame owned in _library?.games ?? <SteamOwnedGame>[]) {
-      if (!catalogAppIds.contains(owned.appId)) {
-        games.add(Game.fromSteam(appId: owned.appId, name: owned.name));
-      }
+    final Set<String> ids = games.map((g) => g.id).toSet();
+    for (final OwnedGame owned in ownedGames) {
+      final Game game = gameForOwned(owned);
+      if (ids.add(game.id)) games.add(game);
     }
     return games;
   }
@@ -104,6 +111,25 @@ class AppState extends ChangeNotifier {
       if (game.steamAppId == owned.appId) return game;
     }
     return Game.fromSteam(appId: owned.appId, name: owned.name);
+  }
+
+  /// O jogo correspondente a um item da PSN. A Sony não tem um id em comum
+  /// com o catálogo, então o encontro é pelo nome (ver [Game.matchesTitle]).
+  Game gameForPsn(PsnOwnedGame owned) {
+    for (final Game game in catalog) {
+      if (game.matchesTitle(owned.name)) return game;
+    }
+    return Game.fromPsn(
+      psnId: owned.id,
+      name: owned.name,
+      consoles: owned.consoles,
+      imageUrl: owned.imageUrl,
+    );
+  }
+
+  Game gameForOwned(OwnedGame owned) {
+    if (owned is SteamOwnedGame) return gameForSteam(owned);
+    return gameForPsn(owned as PsnOwnedGame);
   }
 
   // ---------------------------------------------------------------- reviews
@@ -186,6 +212,49 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ------------------------------------------------- bibliotecas (geral)
+
+  GameLibrary? libraryFor(GamePlatform platform) {
+    switch (platform) {
+      case GamePlatform.steam:
+        return _library;
+      case GamePlatform.psn:
+        return _psnLibrary;
+    }
+  }
+
+  bool get hasAnyLibrary => _library != null || _psnLibrary != null;
+
+  /// Nível de crítico do usuário (ficha do perfil), somando reviews e as
+  /// bibliotecas conectadas.
+  PlayerLevel get playerLevel {
+    final List<Review> mine = myReviews;
+    final int withText = mine.where((r) => r.hasComment).length;
+    return PlayerLevel.from(
+      reviewsWithText: withText,
+      ratingsOnly: mine.length - withText,
+      platinums:
+          (_library?.platinumCount ?? 0) + (_psnLibrary?.platinumCount ?? 0),
+      playtimeMinutes:
+          (_library?.totalPlaytimeMinutes ?? 0) +
+          (_psnLibrary?.totalPlaytimeMinutes ?? 0),
+    );
+  }
+
+  /// Todos os jogos importados, de todas as plataformas.
+  List<OwnedGame> get ownedGames => <OwnedGame>[
+    ...?_library?.games,
+    ...?_psnLibrary?.games,
+  ];
+
+  /// As entradas das bibliotecas que correspondem a este jogo (ele pode
+  /// estar na Steam e na PSN ao mesmo tempo).
+  List<OwnedGame> ownedEntriesFor(Game game) {
+    final SteamOwnedGame? steam = steamEntryFor(game);
+    final PsnOwnedGame? psn = psnEntryFor(game);
+    return <OwnedGame>[?steam, ?psn];
+  }
+
   // ------------------------------------------------------------------ Steam
 
   SteamLibrary? _library;
@@ -250,13 +319,81 @@ class AppState extends ChangeNotifier {
     return null;
   }
 
-  /// Jogos Steam jogados recentemente (para "Continue de onde parou").
-  List<SteamOwnedGame> get recentlyPlayed {
-    final List<SteamOwnedGame> played =
-        (_library?.games ?? <SteamOwnedGame>[])
-            .where((g) => g.lastPlayed != null && g.wasPlayed)
-            .toList()
+  /// Jogos jogados recentemente em qualquer plataforma (para "Continue de
+  /// onde parou").
+  List<OwnedGame> get recentlyPlayed {
+    final List<OwnedGame> played =
+        ownedGames.where((g) => g.lastPlayed != null && g.wasPlayed).toList()
           ..sort((a, b) => b.lastPlayed!.compareTo(a.lastPlayed!));
     return played;
+  }
+
+  // ------------------------------------------------------------ PlayStation
+
+  PsnLibrary? _psnLibrary;
+  bool _loadingPsn = false;
+  String? _psnError;
+
+  PsnLibrary? get psnLibrary => _psnLibrary;
+  bool get loadingPsn => _loadingPsn;
+  String? get psnError => _psnError;
+  bool get isPsnDemo => services.psn.isDemo;
+
+  /// Importa a conta PSN pelo ID online. Lança [PsnException] com mensagem
+  /// amigável se algo der errado (e também guarda em [psnError]).
+  Future<void> connectPsn(String input, {bool persist = true}) async {
+    _loadingPsn = true;
+    _psnError = null;
+    notifyListeners();
+    try {
+      final PsnLibrary library = await services.psn.loadLibrary(input);
+      _psnLibrary = library;
+      final AppUser? current = _user;
+      if (persist && current != null) {
+        await services.auth.updatePsnOnlineId(
+          current.id,
+          library.profile.onlineId,
+        );
+        _user = current.copyWith(psnOnlineId: library.profile.onlineId);
+      }
+    } on PsnException catch (error) {
+      _psnError = error.message;
+      if (persist) rethrow;
+    } on Object catch (error) {
+      debugPrint("Erro ao importar conta PSN: $error");
+      _psnError = "Deu ruim aqui do nosso lado. Tenta de novo?";
+      if (persist) throw PsnException(_psnError!);
+    } finally {
+      _loadingPsn = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> refreshPsn() async {
+    final String? onlineId =
+        _psnLibrary?.profile.onlineId ?? _user?.psnOnlineId;
+    if (onlineId == null) return;
+    await connectPsn(onlineId, persist: false);
+  }
+
+  Future<void> disconnectPsn() async {
+    final AppUser? current = _user;
+    if (current != null) {
+      await services.auth.updatePsnOnlineId(current.id, null);
+      _user = current.copyWith(clearPsnOnlineId: true);
+    }
+    _psnLibrary = null;
+    _psnError = null;
+    notifyListeners();
+  }
+
+  PsnOwnedGame? psnEntryFor(Game game) {
+    for (final PsnOwnedGame owned in _psnLibrary?.games ?? <PsnOwnedGame>[]) {
+      if (game.id == Game.psnGameId(owned.id) ||
+          (!game.isImported && game.matchesTitle(owned.name))) {
+        return owned;
+      }
+    }
+    return null;
   }
 }

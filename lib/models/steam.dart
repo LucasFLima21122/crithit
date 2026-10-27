@@ -1,3 +1,5 @@
+import "library.dart";
+
 /// Perfil público de uma conta Steam (ISteamUser/GetPlayerSummaries).
 class SteamProfile {
   const SteamProfile({
@@ -20,7 +22,7 @@ class SteamProfile {
 
 /// Um jogo da biblioteca Steam do usuário, com tempo de jogo e progresso
 /// de conquistas.
-class SteamOwnedGame {
+class SteamOwnedGame implements OwnedGame {
   const SteamOwnedGame({
     required this.appId,
     required this.name,
@@ -31,25 +33,37 @@ class SteamOwnedGame {
   });
 
   final int appId;
+  @override
   final String name;
+  @override
   final int playtimeMinutes;
+  @override
   final DateTime? lastPlayed;
 
   /// `null` quando a Steam não informou o progresso (ex.: jogo nunca aberto).
+  @override
   final int? achievementsUnlocked;
 
   /// `0` quando o jogo não tem conquistas.
+  @override
   final int? achievementsTotal;
 
+  @override
+  GamePlatform get platform => GamePlatform.steam;
+
+  @override
   bool get wasPlayed => playtimeMinutes > 0;
 
+  @override
   bool get hasAchievements => (achievementsTotal ?? 0) > 0;
 
   /// "Platinou": desbloqueou 100% das conquistas — o equivalente Steam ao
   /// troféu de platina do PlayStation.
+  @override
   bool get isPlatinum =>
       hasAchievements && achievementsUnlocked == achievementsTotal;
 
+  @override
   double get achievementRatio =>
       hasAchievements ? (achievementsUnlocked ?? 0) / achievementsTotal! : 0;
 
@@ -66,7 +80,7 @@ class SteamOwnedGame {
 }
 
 /// Biblioteca Steam importada: o perfil + todos os jogos.
-class SteamLibrary {
+class SteamLibrary with LibraryTotals implements GameLibrary {
   const SteamLibrary({
     required this.profile,
     required this.games,
@@ -74,13 +88,17 @@ class SteamLibrary {
   });
 
   final SteamProfile profile;
+  @override
   final List<SteamOwnedGame> games;
+  @override
   final DateTime fetchedAt;
 
-  int get totalPlaytimeMinutes =>
-      games.fold(0, (sum, game) => sum + game.playtimeMinutes);
+  @override
+  GamePlatform get platform => GamePlatform.steam;
 
-  int get playedCount => games.where((g) => g.wasPlayed).length;
+  @override
+  String get accountName => profile.personaName;
 
-  int get platinumCount => games.where((g) => g.isPlatinum).length;
+  @override
+  String? get avatarUrl => profile.avatarUrl;
 }

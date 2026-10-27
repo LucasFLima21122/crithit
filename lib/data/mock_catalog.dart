@@ -225,6 +225,60 @@ const List<Game> kMockCatalog = <Game>[
     synopsis:
         "O FPS tático competitivo mais jogado do mundo: terroristas contra contraterroristas, rodada a rodada, agora na Source 2.",
   ),
+  // Jogos que nasceram no PlayStation (CP6): ligam o catálogo à biblioteca
+  // PSN importada, que casa pelo nome do jogo.
+  Game(
+    id: "ghost-of-tsushima",
+    title: "Ghost of Tsushima",
+    platform: "PC / PlayStation",
+    genre: "Ação e aventura",
+    developer: "Sucker Punch",
+    releaseYear: 2020,
+    emoji: "⚔️",
+    coverAsset: "assets/covers/ghost-of-tsushima.jpg",
+    steamAppId: 2215430,
+    synopsis:
+        "Jin Sakai abandona o código samurai para virar o Fantasma e defender a ilha de Tsushima da invasão mongol, num mundo aberto guiado pelo vento.",
+  ),
+  Game(
+    id: "spider-man-2",
+    title: "Marvel's Spider-Man 2",
+    platform: "PC / PlayStation",
+    genre: "Ação e aventura",
+    developer: "Insomniac Games",
+    releaseYear: 2023,
+    emoji: "🕸️",
+    coverAsset: "assets/covers/spider-man-2.jpg",
+    steamAppId: 2651280,
+    synopsis:
+        "Peter Parker e Miles Morales dividem Nova York e o traje contra Kraven e o simbionte Venom, trocando de herói no meio da história.",
+  ),
+  Game(
+    id: "the-last-of-us-part-1",
+    title: "The Last of Us Part I",
+    platform: "PC / PlayStation",
+    genre: "Ação e aventura",
+    developer: "Naughty Dog",
+    releaseYear: 2022,
+    emoji: "🍄",
+    coverAsset: "assets/covers/the-last-of-us-part-1.jpg",
+    steamAppId: 1888930,
+    synopsis:
+        "Joel atravessa um Estados Unidos devastado por um fungo para levar Ellie, talvez a cura da humanidade, numa das histórias mais marcantes dos games.",
+  ),
+  Game(
+    id: "helldivers-2",
+    title: "Helldivers 2",
+    platform: "PC / PlayStation / Xbox",
+    genre: "Tiro cooperativo",
+    developer: "Arrowhead",
+    releaseYear: 2024,
+    emoji: "🪖",
+    coverAsset: "assets/covers/helldivers-2.jpg",
+    steamAppId: 553850,
+    synopsis:
+        "Esquadrões de até quatro jogadores espalham a democracia gerenciada pela galáxia, com fogo amigo ligado e estratagemas pedidos por código.",
+  ),
   // Exclusivo de console: não existe na Steam e não tem capa local de
   // propósito — mostra o fallback em emoji funcionando.
   Game(

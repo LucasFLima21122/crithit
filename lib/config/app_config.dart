@@ -24,10 +24,19 @@ class AppConfig {
   /// secret na Edge Function `steam` do Supabase e nunca vai para o app.
   static const String steamApiKey = String.fromEnvironment("STEAM_API_KEY");
 
+  /// Token NPSSO de uma conta PSN, usado **apenas** no modo offline em
+  /// desktop ou Android (chamada direta, para teste local). Ele vale tanto
+  /// quanto a senha da conta: no modo online fica como secret na Edge
+  /// Function `psn` e nunca vai para o app.
+  static const String psnNpsso = String.fromEnvironment("PSN_NPSSO");
+
   static bool get hasSupabase =>
       supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty;
 
   /// A Steam Web API não libera CORS, então no navegador a chamada direta
   /// é bloqueada — por isso o modo direto só vale fora da web.
   static bool get canCallSteamDirectly => steamApiKey.isNotEmpty && !kIsWeb;
+
+  /// Mesmo motivo da Steam: a PSN não libera CORS para o navegador.
+  static bool get canCallPsnDirectly => psnNpsso.isNotEmpty && !kIsWeb;
 }

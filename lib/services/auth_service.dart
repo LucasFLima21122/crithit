@@ -32,6 +32,9 @@ abstract class AuthService {
 
   /// Salva (ou remove, com `null`) a conta Steam ligada ao perfil.
   Future<void> updateSteamId(String userId, String? steamId);
+
+  /// Salva (ou remove, com `null`) a conta PSN ligada ao perfil.
+  Future<void> updatePsnOnlineId(String userId, String? onlineId);
 }
 
 /// Autenticação em memória, usada no modo offline. Aceita qualquer e-mail
@@ -89,6 +92,15 @@ class LocalAuthService implements AuthService {
     _current = steamId == null
         ? current.copyWith(clearSteamId: true)
         : current.copyWith(steamId: steamId);
+  }
+
+  @override
+  Future<void> updatePsnOnlineId(String userId, String? onlineId) async {
+    final AppUser? current = _current;
+    if (current == null) return;
+    _current = onlineId == null
+        ? current.copyWith(clearPsnOnlineId: true)
+        : current.copyWith(psnOnlineId: onlineId);
   }
 }
 
@@ -165,6 +177,14 @@ class SupabaseAuthService implements AuthService {
         .eq("id", userId);
   }
 
+  @override
+  Future<void> updatePsnOnlineId(String userId, String? onlineId) async {
+    await _client
+        .from("profiles")
+        .update(<String, dynamic>{"psn_online_id": onlineId})
+        .eq("id", userId);
+  }
+
   Future<AppUser> _loadProfile(User user) async {
     Map<String, dynamic>? row = await _client
         .from("profiles")
@@ -191,6 +211,7 @@ class SupabaseAuthService implements AuthService {
       email: user.email,
       displayName: row["display_name"] as String,
       steamId: row["steam_id"] as String?,
+      psnOnlineId: row["psn_online_id"] as String?,
       isGuest: user.isAnonymous,
     );
   }

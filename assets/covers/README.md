@@ -1,6 +1,6 @@
 # Capas dos jogos
 
-Capas locais (em pé, proporção 2:3) dos 16 jogos do catálogo curado que existem na Steam. Elas ficam dentro do app para o catálogo funcionar sem internet.
+Capas locais (em pé, proporção 2:3) dos 20 jogos do catálogo curado que existem na Steam (16 desde o CP5 e 4 de origem PlayStation adicionados no CP6). Elas ficam dentro do app para o catálogo funcionar sem internet.
 
 Para adicionar um jogo novo ao catálogo (`lib/data/mock_catalog.dart`), salve a capa aqui com o mesmo nome usado no campo `coverAsset`, em `.jpg`. Se o jogo existe na Steam, a capa pode ser baixada do CDN:
 

@@ -3,6 +3,8 @@ import "package:supabase_flutter/supabase_flutter.dart";
 
 import "../config/app_config.dart";
 import "auth_service.dart";
+import "psn/psn_api.dart";
+import "psn/psn_library_service.dart";
 import "review_repository.dart";
 import "steam/steam_api.dart";
 import "steam/steam_library_service.dart";
@@ -24,6 +26,7 @@ class AppServices {
     required this.auth,
     required this.reviews,
     required this.steam,
+    required this.psn,
     this.notice,
   });
 
@@ -37,6 +40,9 @@ class AppServices {
       steam: AppConfig.canCallSteamDirectly
           ? RemoteSteamLibraryService(DirectSteamApi(AppConfig.steamApiKey))
           : DemoSteamLibraryService(),
+      psn: AppConfig.canCallPsnDirectly
+          ? RemotePsnLibraryService(DirectPsnApi(AppConfig.psnNpsso))
+          : DemoPsnLibraryService(),
       notice: notice,
     );
   }
@@ -45,6 +51,7 @@ class AppServices {
   final AuthService auth;
   final ReviewRepository reviews;
   final SteamLibraryService steam;
+  final PsnLibraryService psn;
 
   /// Aviso opcional para mostrar ao usuário (ex.: "não conectou no Supabase").
   final String? notice;
@@ -65,6 +72,7 @@ class AppServices {
         auth: SupabaseAuthService(client),
         reviews: SupabaseReviewRepository(client),
         steam: RemoteSteamLibraryService(SupabaseSteamProxyApi(client)),
+        psn: RemotePsnLibraryService(SupabasePsnProxyApi(client)),
       );
     } on Object catch (error) {
       debugPrint("Falha ao iniciar o Supabase: $error");

@@ -5,6 +5,7 @@ class AppUser {
     required this.displayName,
     this.email,
     this.steamId,
+    this.psnOnlineId,
     this.isGuest = false,
   });
 
@@ -16,6 +17,9 @@ class AppUser {
   /// para a biblioteca ser recarregada sozinha no próximo login.
   final String? steamId;
 
+  /// ID online da conta PSN conectada, se houver. Mesmo papel do [steamId].
+  final String? psnOnlineId;
+
   /// Conta de convidado (login anônimo): pode avaliar, mas não tem e-mail.
   final bool isGuest;
 
@@ -26,12 +30,18 @@ class AppUser {
     return (parts.first[0] + parts.last[0]).toUpperCase();
   }
 
-  AppUser copyWith({String? steamId, bool clearSteamId = false}) {
+  AppUser copyWith({
+    String? steamId,
+    bool clearSteamId = false,
+    String? psnOnlineId,
+    bool clearPsnOnlineId = false,
+  }) {
     return AppUser(
       id: id,
       displayName: displayName,
       email: email,
       steamId: clearSteamId ? null : (steamId ?? this.steamId),
+      psnOnlineId: clearPsnOnlineId ? null : (psnOnlineId ?? this.psnOnlineId),
       isGuest: isGuest,
     );
   }

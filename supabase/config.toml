@@ -1,9 +1,13 @@
 # Configuração mínima do Supabase CLI para este projeto.
 # O projeto real fica na nuvem; aqui só ficam schema (migrations), seed e
-# a Edge Function "steam".
+# as Edge Functions "steam" e "psn".
 project_id = "crithit"
 
 [functions.steam]
 # Exige o header Authorization (a chave publishable ou o JWT do usuário),
 # que o supabase_flutter já manda automaticamente.
+verify_jwt = true
+
+[functions.psn]
+# Mesma regra da "steam": só o app (com a chave do projeto) pode chamar.
 verify_jwt = true
