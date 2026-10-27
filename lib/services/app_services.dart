@@ -1,4 +1,5 @@
 import "package:flutter/foundation.dart";
+import "package:http/http.dart" as http;
 import "package:supabase_flutter/supabase_flutter.dart";
 
 import "../config/app_config.dart";
@@ -58,8 +59,18 @@ class AppServices {
 
   /// Inicializa o Supabase se houver configuração; se falhar, cai para o
   /// modo offline em vez de travar o app na apresentação.
-  static Future<AppServices> create() async {
+  static Future<AppServices> create({http.Client? client}) async {
     if (!AppConfig.hasSupabase) return AppServices.offline();
+
+    // O `Supabase.initialize` não fala com o servidor, então "dá certo"
+    // mesmo com ele fora do ar (sem internet, projeto pausado...). Por isso
+    // testamos antes se o servidor responde.
+    if (!await isServerReachable(client ?? http.Client())) {
+      return AppServices.offline(
+        notice:
+            "Não deu pra conectar no servidor. Rodando com dados de exemplo.",
+      );
+    }
 
     try {
       await Supabase.initialize(
@@ -80,6 +91,24 @@ class AppServices {
         notice:
             "Não deu pra conectar no servidor. Rodando com dados de exemplo.",
       );
+    }
+  }
+
+  /// `true` se o Supabase Auth responde em até 5 segundos.
+  static Future<bool> isServerReachable(http.Client client) async {
+    try {
+      final http.Response response = await client
+          .get(
+            Uri.parse("${AppConfig.supabaseUrl}/auth/v1/health"),
+            headers: <String, String>{
+              "apikey": AppConfig.supabasePublishableKey,
+            },
+          )
+          .timeout(const Duration(seconds: 5));
+      return response.statusCode < 500;
+    } on Object catch (error) {
+      debugPrint("Supabase fora do ar: $error");
+      return false;
     }
   }
 }
