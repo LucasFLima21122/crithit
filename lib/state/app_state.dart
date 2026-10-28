@@ -18,11 +18,40 @@ import "../utils/player_level.dart";
 /// As telas leem daqui com `context.watch<AppState>()` e chamam os métodos
 /// para agir; toda mudança chama [notifyListeners] e a interface se refaz.
 class AppState extends ChangeNotifier {
-  AppState(this.services);
+  AppState(AppServices services, {this.reconnectServices = AppServices.create})
+    : _services = services;
 
-  final AppServices services;
+  AppServices _services;
+  AppServices get services => _services;
+
+  /// Como montar os serviços de novo ao tentar reconectar (troca nos testes).
+  final Future<AppServices> Function() reconnectServices;
 
   BackendMode get mode => services.mode;
+
+  bool _reconnecting = false;
+  bool get reconnecting => _reconnecting;
+
+  /// Tenta sair do modo offline sem fechar o app (ex.: o celular estava sem
+  /// rede ao abrir). Só vale antes do login, na tela de boas-vindas.
+  /// Devolve `true` se conseguiu ficar online.
+  Future<bool> reconnect() async {
+    if (mode == BackendMode.online || _reconnecting || isSignedIn) {
+      return mode == BackendMode.online;
+    }
+    _reconnecting = true;
+    notifyListeners();
+    final AppServices next = await reconnectServices();
+    if (next.mode == BackendMode.online) {
+      _services = next;
+      // Quem já tinha entrado online antes volta direto para a conta.
+      _user = await services.auth.restoreSession();
+      if (_user != null) await _afterSignIn();
+    }
+    _reconnecting = false;
+    notifyListeners();
+    return mode == BackendMode.online;
+  }
 
   // ---------------------------------------------------------------- sessão
 

@@ -1,7 +1,7 @@
 name: crithit
 description: "CritHit — avalie e comente os jogos que você jogou, com notas de 1 a 5 estrelas e suas bibliotecas Steam e PlayStation."
 publish_to: "none"
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ">=3.9.0 <4.0.0"

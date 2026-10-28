@@ -33,6 +33,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     }
   }
 
+  Future<void> _reconnect() async {
+    final bool online = await context.read<AppState>().reconnect();
+    if (!mounted) return;
+    showCritHitSnack(
+      context,
+      online
+          ? "Conectado! Agora é pra valer: dados salvos no servidor."
+          : "Ainda sem resposta do servidor. Confere a internet do aparelho.",
+      error: !online,
+    );
+  }
+
   void _openAuth(bool signUp) {
     Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
@@ -160,6 +172,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           notice,
                           textAlign: TextAlign.center,
                           style: textTheme.bodySmall,
+                        ),
+                        // Caiu para offline porque o servidor não respondeu
+                        // (ex.: o celular ainda estava sem rede ao abrir).
+                        TextButton.icon(
+                          onPressed: state.reconnecting ? null : _reconnect,
+                          icon: state.reconnecting
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.refresh_rounded, size: 18),
+                          label: const Text("Tentar conectar de novo"),
                         ),
                       ],
                     ],

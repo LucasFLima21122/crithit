@@ -94,21 +94,31 @@ class AppServices {
     }
   }
 
-  /// `true` se o Supabase Auth responde em até 5 segundos.
-  static Future<bool> isServerReachable(http.Client client) async {
-    try {
-      final http.Response response = await client
-          .get(
-            Uri.parse("${AppConfig.supabaseUrl}/auth/v1/health"),
-            headers: <String, String>{
-              "apikey": AppConfig.supabasePublishableKey,
-            },
-          )
-          .timeout(const Duration(seconds: 5));
-      return response.statusCode < 500;
-    } on Object catch (error) {
-      debugPrint("Supabase fora do ar: $error");
-      return false;
+  /// `true` se o Supabase Auth responde. Tenta mais de uma vez porque, logo
+  /// depois de ligar, o celular ou o emulador pode ainda estar subindo a
+  /// rede — sem isso o app abria offline à toa.
+  static Future<bool> isServerReachable(
+    http.Client client, {
+    int attempts = 2,
+    Duration timeout = const Duration(seconds: 8),
+    Duration retryDelay = const Duration(seconds: 1),
+  }) async {
+    for (int attempt = 1; attempt <= attempts; attempt++) {
+      try {
+        final http.Response response = await client
+            .get(
+              Uri.parse("${AppConfig.supabaseUrl}/auth/v1/health"),
+              headers: <String, String>{
+                "apikey": AppConfig.supabasePublishableKey,
+              },
+            )
+            .timeout(timeout);
+        if (response.statusCode < 500) return true;
+      } on Object catch (error) {
+        debugPrint("Supabase não respondeu (tentativa $attempt): $error");
+      }
+      if (attempt < attempts) await Future<void>.delayed(retryDelay);
     }
+    return false;
   }
 }

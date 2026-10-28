@@ -111,7 +111,9 @@ Todos os prints abaixo foram tirados do **APK de release** rodando no emulador A
 
 1. Baixe o `crithit.apk` na [página de Releases](https://github.com/LucasFLima21122/crithit/releases/latest), no celular ou no computador.
 2. No Android, abra o arquivo e permita **"Instalar apps desconhecidos"** para o navegador ou gerenciador de arquivos quando ele pedir.
-3. Abra o **CritHit**. Na tela de boas-vindas, a etiqueta mostra o modo: **ONLINE · SUPABASE** (login, reviews, Steam e PSN reais) ou **OFFLINE · DADOS DE EXEMPLO** (sem internet ou com o servidor fora do ar).
+3. Abra o **CritHit**. Na tela de boas-vindas, a etiqueta mostra o modo: **ONLINE · SUPABASE** (login, reviews, Steam e PSN reais) ou **OFFLINE · DADOS DE EXEMPLO** (sem internet ou com o servidor fora do ar). Se abrir offline porque o aparelho ainda estava sem internet, toque em **"Tentar conectar de novo"**.
+
+Tudo o que o modo online precisa vai dentro do APK (endereço e chave pública do Supabase), então ele funciona em qualquer celular ou emulador com internet, sem configurar nada. Num emulador recém-ligado, espere a internet dele subir (dá pra testar abrindo o Chrome) antes de abrir o app.
 
 No emulador do Android Studio: `adb install crithit.apk`, ou arraste o arquivo para a janela do emulador.
 
@@ -148,7 +150,10 @@ flutter analyze
 flutter test
 ```
 
-No VS Code, as duas opções já aparecem prontas em **Run and Debug** (`.vscode/launch.json`): *CritHit · online (Supabase)* e *CritHit · offline (dados mockados)*.
+As duas opções já vêm prontas nas IDEs: *CritHit · online (Supabase)* e *CritHit · offline (dados mockados)*.
+
+- **VS Code**: em **Run and Debug** (`.vscode/launch.json`).
+- **Android Studio**: no seletor de configurações ao lado do botão ▶ (`.run/`). Use a **online**: a "main.dart" que o Android Studio cria sozinho roda sem o `env.json` e por isso abre no modo offline.
 
 ### Modo online × modo offline
 
@@ -160,7 +165,7 @@ No VS Code, as duas opções já aparecem prontas em **Run and Debug** (`.vscode
 | Steam | Biblioteca de demonstração (16 jogos) | Sua conta Steam de verdade, via Edge Function `steam` |
 | PlayStation | Conta de demonstração (12 jogos, 4 platinas) | Sua conta PSN de verdade, via Edge Function `psn` |
 
-O app escolhe o modo sozinho ao abrir (`lib/services/app_services.dart`): antes de ligar o Supabase, ele testa se o servidor responde em até 5 segundos. Se não responder, entra no modo offline e avisa na tela de boas-vindas. A apresentação nunca depende da rede.
+O app escolhe o modo sozinho ao abrir (`lib/services/app_services.dart`): antes de ligar o Supabase, ele testa se o servidor responde (duas tentativas de até 8 segundos, porque um celular ou emulador recém-ligado pode ainda estar subindo a rede). Se não responder, entra no modo offline e mostra na tela de boas-vindas o botão **"Tentar conectar de novo"**, que passa para o modo online sem fechar o app. A apresentação nunca depende da rede.
 
 ## Integração com a Steam
 
@@ -276,17 +281,17 @@ As telas dependem só das **interfaces**; `AppServices` escolhe as implementaç�
 - **Privacidade parcial não é erro**: "Troféus" e "Jogos" têm privacidade separada na PSN. Se só uma estiver aberta, o app importa o que der; só falha se as duas estiverem fechadas.
 - **Formas HUD no tema, não em cada tela**: o canto cortado está no `ThemeData` (botões, campos, chips, diálogos, menus) e em poucos widgets (`HudPanel`, `HudShapes`). Mudar o corte ou a cor é mexer em um lugar só.
 - **Fontes embutidas** (`assets/fonts/`) em vez de `google_fonts`, para o APK funcionar offline desde a primeira abertura.
-- **Checagem do servidor antes do modo online**: o `Supabase.initialize` não faz nenhuma chamada de rede, então "dava certo" mesmo com o servidor fora do ar, e o app quebrava só no login. Agora o app consulta `/auth/v1/health` antes de decidir.
+- **Checagem do servidor antes do modo online**: o `Supabase.initialize` não faz nenhuma chamada de rede, então "dava certo" mesmo com o servidor fora do ar, e o app quebrava só no login. Agora o app consulta `/auth/v1/health` antes de decidir, tenta duas vezes (rede ainda subindo num emulador recém-ligado) e, se cair para offline, deixa reconectar pela tela de boas-vindas.
 - **Nível de crítico calculado, não salvo**: o XP sai das reviews e bibliotecas que já existem, sem tabela nova nem risco de ficar dessincronizado.
 
 ## Testes
 
-`flutter test` roda **41 testes**, todos offline:
+`flutter test` roda **44 testes**, todos offline:
 
 - **Fluxos de widget** (`test/widget_test.dart`): boas-vindas; cadastro com validação; avaliar um jogo (sem nota → erro; com nota → "HIT!" com +100 XP, review no perfil); conectar Steam (perfil privado → erro; demonstração → 16 jogos, platinados, detalhe com conquistas); **conectar PSN** (privacidade fechada → erro; demonstração → 12 jogos e 4 platinas, exclusivo fora do catálogo, God of War casando com o catálogo e mostrando os troféus); busca com filtros e estado vazio.
 - **PSN** (`test/psn_test.dart`): leitura do ID online, duração ISO 8601, comparação de títulos entre plataformas (com nomes reais da Sony, como "Grand Theft Auto V (PlayStation®5)"), junção de troféus + tempo de jogo (PS4 + PS5 somados, listas de troféus separadas por console, jogo só com troféus, jogo só no histórico), privacidade parcial e total, conta inexistente.
 - **Steam** (`test/steam_test.dart`): parser de link/ID, importação com platinas, ID personalizado, perfis privados e falha nas conquistas sem quebrar a biblioteca.
-- **Nível de crítico** (`test/player_level_test.dart`), **modo online × offline** (`test/app_services_test.dart`) e **formatação** (`test/formatters_test.dart`).
+- **Nível de crítico** (`test/player_level_test.dart`), **modo online × offline e reconexão** (`test/app_services_test.dart`) e **formatação** (`test/formatters_test.dart`).
 
 Os testes de widget pegaram, no CP6, dois textos que estouravam a largura do card de destaque em telas estreitas, antes de irem para o APK.
 
